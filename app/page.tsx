@@ -7,6 +7,7 @@ import { useUI } from "./contexts/UIContext";
 import { useAudio } from "./contexts/AudioContext";
 import { motion } from "framer-motion";
 import { supabase } from "../lib/supabase";
+import { Navigation } from "./components/Navigation";
 
 export default function LandingPage() {
   const { openPreviewModal, openAboutModal } = useUI();
@@ -68,28 +69,7 @@ export default function LandingPage() {
   return (
     <>
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 glass-nav">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-primary text-3xl">fluid</span>
-            <span className="text-xl font-black tracking-tighter uppercase">iMagiMason</span>
-          </div>
-          <div className="hidden md:flex items-center gap-12">
-            <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#story">Story</Link>
-            <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#drops">Drops</Link>
-            <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="/listen">Listen</Link>
-          </div>
-          <div className="flex items-center gap-6">
-            <Link href="/admin" className="hidden lg:flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary px-5 py-2 rounded-lg border border-primary/20 transition-all text-sm font-bold uppercase tracking-wider">
-              <span className="material-symbols-outlined text-sm">account_balance_wallet</span>
-              Admin
-            </Link>
-            <Link href="/drop" className="bg-primary text-background-dark px-6 py-2 rounded-lg font-bold text-sm uppercase tracking-wider hover:brightness-110 transition-all">
-              Next Drop
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Hero Section */}
       <motion.section 

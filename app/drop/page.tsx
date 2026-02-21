@@ -6,6 +6,7 @@ import { supabase } from "../../lib/supabase";
 import { useUI } from "../contexts/UIContext";
 import { useAudio } from "../contexts/AudioContext";
 import { motion } from "framer-motion";
+import { Navigation } from "../components/Navigation";
 
 export default function DropPage() {
   const DROP_ID = "11111111-1111-1111-1111-111111111111"; // Seeding from the MVP database slot
@@ -143,31 +144,7 @@ export default function DropPage() {
   return (
     <div className={`min-h-screen flex flex-col font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 relative transition-colors duration-1000 ${isPlaying ? 'bg-[#1a140b] dark:bg-[#1a140b]' : ''}`}>
       {/* Top Navigation */}
-      <header className="sticky top-0 z-50 border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="text-primary">
-              <span className="material-symbols-outlined text-3xl">fluid</span>
-            </div>
-            <h1 className="text-xl font-bold tracking-tight">iMagiMason</h1>
-          </Link>
-          <nav className="hidden md:flex items-center gap-10">
-            <Link className="text-sm font-medium hover:text-primary transition-colors" href="/">Home</Link>
-            <Link className="text-sm font-medium hover:text-primary transition-colors text-primary border-b-2 border-primary pb-1" href="/drop">Live Auction</Link>
-            <button onClick={openArchiveModal} className="text-sm font-medium hover:text-primary transition-colors">Archive</button>
-            <button onClick={openAboutModal} className="text-sm font-medium hover:text-primary transition-colors">About</button>
-          </nav>
-          <div className="flex items-center gap-4">
-            <button onClick={() => openPreviewModal("Wallet Connection")} className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-primary text-background-dark font-bold text-sm rounded-lg hover:brightness-110 transition-all">
-              <span className="material-symbols-outlined text-lg">account_balance_wallet</span>
-              Connect Wallet
-            </button>
-            <button className="md:hidden text-slate-100">
-              <span className="material-symbols-outlined">menu</span>
-            </button>
-          </div>
-        </div>
-      </header>
+      <Navigation />
       
       <motion.main 
         initial={{ opacity: 0, y: 30 }}
