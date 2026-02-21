@@ -11,7 +11,7 @@ import RichTextEditor from "../components/RichTextEditor";
 
 export default function AdminDashboard() {
   const { openPreviewModal } = useUI();
-  const { togglePlay, isPlaying, setAudioSource, currentTrack } = useAudio();
+  const { togglePlay, isPlaying, setAudioSource, currentTrack, formatTime } = useAudio();
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -148,11 +148,11 @@ export default function AdminDashboard() {
       const { error } = await supabase.from('stories').insert([{
         title: storyTitle,
         content: storyContent, // Now saving sanitized HTML from Tiptap
-        status: 'DRAFT'
+        status: 'PUBLISHED'
       }]);
       
       if (error) throw error;
-      triggerToast("Story Published Successfully!");
+      triggerToast("Story Published! It is now visible on the Homepage & Journal.");
       setStoryTitle("");
       setStoryContent("");
       setLastSavedStoryTime(null);
@@ -961,7 +961,9 @@ export default function AdminDashboard() {
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-slate-400">{track.duration}</td>
+                          <td className="px-6 py-4 text-slate-400">
+                            {track.duration ? (typeof track.duration === 'string' && track.duration.toString().includes(':') ? track.duration : formatTime(Number(track.duration))) : "00:00"}
+                          </td>
                           <td className="px-6 py-4 text-right">
                             <button onClick={() => handleDeleteTrack(track.id)} className="text-slate-400 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 p-2">
                               <span className="material-symbols-outlined text-[18px]">delete</span>

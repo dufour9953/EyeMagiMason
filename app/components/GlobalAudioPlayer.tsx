@@ -54,7 +54,7 @@ export function GlobalAudioPlayer() {
               
               {/* Expansive Track Info with Layout transition */}
               <AnimatePresence>
-                {isPlaying && currentTrack?.coverArt && (
+                {currentTrack?.coverArt && (
                   <motion.img 
                     initial={{ opacity: 0, width: 0, scale: 0.8 }}
                     animate={{ opacity: 1, width: 48, scale: 1 }}

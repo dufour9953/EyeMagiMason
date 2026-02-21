@@ -157,7 +157,7 @@ export default function ListenPage() {
                         {track.plays || 0}
                       </td>
                       <td className="px-6 py-4 text-slate-400 font-mono text-sm text-right">
-                        {track.duration ? formatTime(Number(track.duration)) : "00:00"}
+                        {track.duration ? (typeof track.duration === 'string' && track.duration.includes(':') ? track.duration : formatTime(Number(track.duration))) : "00:00"}
                       </td>
                     </tr>
                   );
