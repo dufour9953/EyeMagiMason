@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme {
     --color-primary: #eead2b;
@@ -26,7 +27,11 @@
     }
 
     .amber-glow-radial {
-        background: radial-gradient(circle, rgba(238, 173, 43, 0.15) 0%, rgba(18, 16, 14, 0) 70%);
+        background: radial-gradient(
+            circle,
+            rgba(238, 173, 43, 0.15) 0%,
+            rgba(18, 16, 14, 0) 70%
+        );
     }
 
     .glass-panel {
