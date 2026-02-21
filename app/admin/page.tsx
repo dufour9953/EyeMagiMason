@@ -387,17 +387,43 @@ export default function AdminDashboard() {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="h-16 border-b border-moss-border px-8 shrink-0 flex items-center justify-between sticky top-0 bg-[#121a12]/80 backdrop-blur-md z-10">
+        <header className="h-16 border-b border-moss-border px-4 md:px-8 shrink-0 flex items-center justify-between sticky top-0 bg-[#121a12]/80 backdrop-blur-md z-20">
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-semibold">{activeTab}</h2>
             {activeTab === 'Manage Drops' && <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-moss-muted text-slate-400 uppercase tracking-widest border border-moss-border">Drafting</span>}
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/drop" className="text-sm font-medium text-slate-400 hover:text-slate-100 transition-colors">Preview Storefront</Link>
+          <div className="flex items-center gap-3">
+            <Link href="/drop" className="text-xs md:text-sm font-medium text-slate-400 hover:text-slate-100 transition-colors">Preview Storefront</Link>
+            
+            {/* Mobile Logout Button */}
+            <button 
+              onClick={handleLogout} 
+              title="Log Out"
+              className="lg:hidden w-8 h-8 rounded-full bg-moss-muted/50 text-slate-400 hover:text-red-400 hover:bg-red-400/10 flex items-center justify-center transition-colors border border-moss-border"
+            >
+              <span className="material-symbols-outlined text-[16px]">logout</span>
+            </button>
           </div>
         </header>
 
-        <div className="p-8 max-w-6xl mx-auto w-full space-y-8 custom-scrollbar pb-32">
+        {/* Mobile Horizontal Sub-Navigation */}
+        <nav className="lg:hidden flex border-b border-moss-border px-4 py-3 overflow-x-auto whitespace-nowrap hide-scrollbar gap-2 bg-[#121a12]/95 backdrop-blur-md z-10 shrink-0">
+          {['Overview', 'Manage Drops', 'Site Content', 'Story Editor', 'Calendar', 'Bids & Results', 'Audio Lab'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors shrink-0 border ${
+                activeTab === tab 
+                  ? 'bg-primary/10 text-primary border-primary/20' 
+                  : 'bg-moss-muted/30 text-slate-400 border-moss-border hover:text-primary hover:border-primary/20'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </nav>
+
+        <div className="p-4 md:p-8 max-w-6xl mx-auto w-full space-y-8 custom-scrollbar pb-32">
           
           {/* OVERVIEW TAB */}
           {activeTab === 'Overview' && (
@@ -423,8 +449,8 @@ export default function AdminDashboard() {
                   <span className="material-symbols-outlined text-primary">history</span>
                   Latest Auction Activity
                 </h3>
-                  <div className="overflow-hidden border border-moss-border rounded-xl">
-                  <table className="w-full text-left text-sm">
+                  <div className="overflow-x-auto border border-moss-border rounded-xl">
+                  <table className="w-full text-left text-sm min-w-[400px]">
                     <thead className="bg-moss-muted text-slate-400 font-medium border-b border-moss-border">
                       <tr>
                         <th className="px-6 py-3">Collector Name</th>
