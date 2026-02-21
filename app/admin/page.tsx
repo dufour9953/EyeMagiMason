@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../../lib/supabase";
 import { useUI } from "../contexts/UIContext";
 import { useAudio } from "../contexts/AudioContext"; // Now pulling in the global audio player
@@ -57,6 +58,16 @@ export default function AdminDashboard() {
   const [trackDuration, setTrackDuration] = useState("");
   const [isTrackFeatured, setIsTrackFeatured] = useState(false);
   const [isSavingTrack, setIsSavingTrack] = useState(false);
+
+  // Toast State
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
+
+  const triggerToast = (msg: string) => {
+    setToastMessage(msg);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -138,14 +149,14 @@ export default function AdminDashboard() {
       }]);
       
       if (error) throw error;
-      alert("Story saved successfully!");
+      triggerToast("Story Published Successfully!");
       setStoryTitle("");
       setStoryContent("");
       // Refresh the stories list
       const { data: sData } = await supabase.from('stories').select('*').order('created_at', { ascending: false });
       if (sData) setStories(sData);
     } catch (err: any) {
-      alert("Error saving story: " + err.message);
+      triggerToast("Error saving story: " + err.message);
     } finally {
       setIsSavingStory(false);
     }
@@ -183,7 +194,7 @@ export default function AdminDashboard() {
       }]);
       
       if (error) throw error;
-      alert("Track saved to library!");
+      triggerToast("Track Saved to Library!");
       
       setTrackTitle("");
       setTrackWood("");
@@ -196,7 +207,7 @@ export default function AdminDashboard() {
       const { data: aData } = await supabase.from('audio_tracks').select('*').order('created_at', { ascending: false });
       if (aData) setAudioTracks(aData);
     } catch (err: any) {
-      alert("Failed to save track: " + err.message);
+      triggerToast("Failed to save track: " + err.message);
     } finally {
       setIsSavingTrack(false);
     }
@@ -226,7 +237,7 @@ export default function AdminDashboard() {
       }]);
 
       if (error) throw error;
-      alert("Event scheduled successfully!");
+      triggerToast("Event Scheduled Successfully!");
       setEventTitle("");
       setEventDate("");
       setEventLocation("");
@@ -234,7 +245,7 @@ export default function AdminDashboard() {
       const { data: eData } = await supabase.from('calendar_events').select('*').order('event_date', { ascending: true });
       if (eData) setEvents(eData);
     } catch (err: any) {
-      alert("Error saving event: " + err.message);
+      triggerToast("Error saving event: " + err.message);
     } finally {
       setIsSavingEvent(false);
     }
@@ -267,7 +278,7 @@ export default function AdminDashboard() {
 
   const handleLaunch = async () => {
     if (!title || !startingBid || !fluteImage || !audioFile) {
-      alert("Please complete the form and upload both media files before launching.");
+      triggerToast("Please complete the form and upload both media files before launching.");
       return;
     }
     setIsPublishing(true);
@@ -294,7 +305,7 @@ export default function AdminDashboard() {
 
       if (error) throw error;
       
-      alert("Auction Successfully Launched!");
+      triggerToast("Auction Successfully Launched!");
       setTitle("");
       setDescription("");
       setStartingBid("");
@@ -304,7 +315,7 @@ export default function AdminDashboard() {
       setAudioFile(null);
       setActiveTab("Overview");
     } catch (err: any) {
-      alert("Failed to launch drop: " + err.message);
+      triggerToast("Failed to launch drop: " + err.message);
     } finally {
       setIsPublishing(false);
     }
@@ -383,6 +394,23 @@ export default function AdminDashboard() {
           </button>
         </nav>
       </aside>
+
+      {/* Admin Toast Notification */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-8 right-8 z-50 bg-[#121a12]/90 backdrop-blur-md border border-primary/30 p-4 rounded-xl shadow-2xl flex items-center gap-3 max-w-sm"
+          >
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+            </div>
+            <p className="text-sm font-medium text-slate-100">{toastMessage}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0">
@@ -514,14 +542,14 @@ export default function AdminDashboard() {
                       type="number" 
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-slate-300">Start Time</label>
                       <input 
                         type="datetime-local"
                         value={startTime}
                         onChange={(e) => setStartTime(e.target.value)}
-                        className="w-full bg-[color-mix(in_srgb,var(--moss-muted),rgba(255,255,255,0.05))] border border-moss-border rounded-lg focus:ring-primary text-slate-100 px-4 py-2.5 outline-none" 
+                        className="w-full bg-moss-muted border border-moss-border rounded-lg focus:ring-primary text-slate-100 px-4 py-2.5 outline-none" 
                       />
                     </div>
                     <div className="space-y-2">
@@ -530,7 +558,7 @@ export default function AdminDashboard() {
                         type="datetime-local"
                         value={endTime}
                         onChange={(e) => setEndTime(e.target.value)}
-                        className="w-full bg-[color-mix(in_srgb,var(--moss-muted),rgba(255,255,255,0.05))] border border-moss-border rounded-lg focus:ring-primary text-slate-100 px-4 py-2.5 outline-none" 
+                        className="w-full bg-moss-muted border border-moss-border rounded-lg focus:ring-primary text-slate-100 px-4 py-2.5 outline-none" 
                       />
                     </div>
                   </div>
@@ -828,7 +856,28 @@ export default function AdminDashboard() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-medium text-slate-300">Audio File (Required WAV/MP3)</label>
-                    <input type="file" accept="audio/*" onChange={e => setLibraryAudioFile(e.target.files?.[0] || null)} className="w-full bg-moss-muted/30 border border-dashed border-moss-border text-slate-400 p-3 rounded-lg cursor-pointer text-sm" />
+                    <input 
+                      type="file" 
+                      accept="audio/*" 
+                      onChange={e => {
+                        const file = e.target.files?.[0] || null;
+                        setLibraryAudioFile(file);
+                        
+                        // Auto-extract track duration
+                        if (file) {
+                          const temporaryAudio = new Audio();
+                          temporaryAudio.src = URL.createObjectURL(file);
+                          temporaryAudio.onloadedmetadata = () => {
+                            const minutes = Math.floor(temporaryAudio.duration / 60);
+                            const seconds = Math.floor(temporaryAudio.duration % 60);
+                            const formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                            setTrackDuration(formattedDuration);
+                            URL.revokeObjectURL(temporaryAudio.src);
+                          };
+                        }
+                      }} 
+                      className="w-full bg-moss-muted/30 border border-dashed border-moss-border text-slate-400 p-3 rounded-lg cursor-pointer text-sm" 
+                    />
                     {libraryAudioFile && <p className="text-xs text-primary font-bold">Queued: {libraryAudioFile.name}</p>}
                   </div>
                   <button onClick={handleSaveTrack} disabled={isSavingTrack} className="w-full mt-4 bg-primary text-background-dark font-black rounded-lg py-3 hover:opacity-90 transition-opacity">
