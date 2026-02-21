@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+    --color-primary: #eead2b;
+    --color-background-light: #f8f7f6;
+    --color-background-dark: #121212;
+    --color-terracotta: #a64d32;
+    --color-charcoal: #1a1a1a;
+    --color-moss-muted: #1e261e;
+    --color-moss-border: #2d382d;
+
+    --font-display: var(--font-inter), sans-serif;
+}
+
+@layer utilities {
+    .glass-nav {
+        background: rgba(18, 18, 18, 0.8);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(238, 173, 43, 0.1);
+    }
+
+    .text-gradient {
+        background: linear-gradient(to right, #eead2b, #a64d32);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .amber-glow-radial {
+        background: radial-gradient(circle, rgba(238, 173, 43, 0.15) 0%, rgba(18, 16, 14, 0) 70%);
+    }
+
+    .glass-panel {
+        background: rgba(34, 28, 16, 0.8);
+        backdrop-filter: blur(12px);
+    }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-moss-border);
+    border-radius: 10px;
+}
+
+body {
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAaFWyjhTZRx7EACmGLYVx74tUzJJfK5IlcxeM21H5oz3CQk0_OkEWbDlJOh0-Q0Tzn9JRkvwXDofa_-ixJAlmb-WdS6hFx1eI5GxhVHNqEYRh9L0Fa2fnBczreFLZTC1hIK5prEhtp98rSUItc2tW4HOmMoulWDGn6ffx7TB-P372imFkWj8h0dkIuol6MLiCZsH4KnQjvjZsPnvYMhFHRiFHNs_JgCsTq9dFB2mJQoaQGzvIH2EFJPdrgV-jb_6jM4lIMDJNEAiI);
+}

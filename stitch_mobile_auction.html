@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>iMagiMason | Spirit Breath Auction</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#eead2b",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#221c10",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .tribal-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23eead2b' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .glass-effect {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-x-hidden">
+<!-- Desktop Wrapper to simulate Mobile View -->
+<div class="relative flex min-h-screen w-full flex-col items-center justify-start bg-zinc-950">
+<!-- Main Mobile Container -->
+<div class="relative flex flex-col w-full max-w-[450px] min-h-screen bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden tribal-pattern">
+<!-- Sticky Header -->
+<header class="sticky top-0 z-50 flex flex-col w-full border-b border-primary/10 bg-background-dark/80 glass-effect px-6 py-4">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 text-primary">
+<svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<span class="text-sm font-bold tracking-widest uppercase text-slate-100">iMagiMason</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="text-[10px] font-bold text-primary uppercase tracking-tighter">Live Auction</span>
+</div>
+</div>
+<!-- Countdown Timer -->
+<div class="flex justify-between items-center px-2">
+<div class="flex flex-col items-center">
+<span class="text-xl font-black text-primary leading-none">00</span>
+<span class="text-[10px] uppercase text-slate-400 font-medium">Days</span>
+</div>
+<span class="text-primary/40 font-bold mb-3">:</span>
+<div class="flex flex-col items-center">
+<span class="text-xl font-black text-primary leading-none">04</span>
+<span class="text-[10px] uppercase text-slate-400 font-medium">Hrs</span>
+</div>
+<span class="text-primary/40 font-bold mb-3">:</span>
+<div class="flex flex-col items-center">
+<span class="text-xl font-black text-primary leading-none">22</span>
+<span class="text-[10px] uppercase text-slate-400 font-medium">Min</span>
+</div>
+<span class="text-primary/40 font-bold mb-3">:</span>
+<div class="flex flex-col items-center">
+<span class="text-xl font-black text-primary leading-none">15</span>
+<span class="text-[10px] uppercase text-slate-400 font-medium">Sec</span>
+</div>
+</div>
+</header>
+<!-- Hero Section -->
+<main class="flex-1 overflow-y-auto pb-32">
+<div class="relative w-full aspect-[4/5] bg-zinc-900 group">
+<img class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" data-alt="Close up of a handcrafted wooden flute with tribal carvings" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpRxxLUDpfWVeyGU7K-E91Iqu8Qdlal-PBa_ZbqyE4bMbm4-QRnkGnKkkge8SkDGvVg5MAij2wMAWQxSUHr82xBXhviKDyq2TmaQxTKzzsYHGe8cwXTDClYW8ig6rtu3ie0ScaP8C9Dxs4aA0X9ptHWln0o0tCDr5nP7Je6XsaXCrBSVlI7K-sLL8hydOgCS9jR7TsXnt6MS6aXVeYQ_iqq-5eD3UkfH5LJDBV7U5HIrnALixWuLp4aBPI5zqT_d8XEK4PUOyH3Wg"/>
+<!-- Music Player Overlay Button -->
+<button class="absolute bottom-6 right-6 w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-lg shadow-primary/30 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-background-dark text-3xl">play_arrow</span>
+</button>
+<!-- Exclusive Song Tag -->
+<div class="absolute bottom-6 left-6 flex flex-col">
+<span class="text-[10px] uppercase font-bold text-primary tracking-widest mb-1 drop-shadow-md">Exclusive Track</span>
+<span class="text-white font-medium text-lg italic drop-shadow-md leading-none">"Echoes of Mason"</span>
+</div>
+</div>
+<!-- Content Details -->
+<div class="p-8 space-y-6">
+<div class="space-y-2">
+<div class="inline-flex px-2 py-0.5 rounded border border-primary/40 bg-primary/5">
+<span class="text-[10px] font-bold text-primary uppercase">Variant 1 of 1</span>
+</div>
+<h1 class="text-4xl font-black text-slate-100 leading-tight">The Spirit Breath</h1>
+<p class="text-slate-400 text-base leading-relaxed font-light">
+                            A one-of-a-kind handcrafted cedar flute, charred and finished with sacred resin. This instrument was used to record the exclusive digital track accompanying this auction.
+                        </p>
+</div>
+<!-- Material Details -->
+<div class="grid grid-cols-2 gap-4">
+<div class="p-4 rounded-xl bg-primary/5 border border-primary/10">
+<span class="text-[10px] text-primary/60 uppercase font-bold block mb-1">Body Material</span>
+<span class="text-slate-200 font-medium">Aromatic Red Cedar</span>
+</div>
+<div class="p-4 rounded-xl bg-primary/5 border border-primary/10">
+<span class="text-[10px] text-primary/60 uppercase font-bold block mb-1">Tuning</span>
+<span class="text-slate-200 font-medium">Key of F# Minor</span>
+</div>
+</div>
+<!-- Artist Info -->
+<div class="flex items-center gap-4 pt-4">
+<div class="size-12 rounded-full overflow-hidden border-2 border-primary/20 bg-zinc-800">
+<img class="w-full h-full object-cover grayscale" data-alt="Portrait of artist iMagiMason" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOF0fu9sua0bBL_au8OU_KqaHxF6l_J2BWW-4pvWLoSnpepiGCUurwvrH2xTX2jYJY9pzboxPkuRZ9bTEH3-m7NQPMWHfDFJGt2-P6rtcfmzSapE93oTdBQsOLp3SqPkw1qTWOsb4qjRs_fdr6kjp5W2Ea399X-3zsrd09Uwwk93CktoY32qTRyl8sRrzwBAGlO6_KjfsovcjQKWTtZ5g_urqJnZu1xeWSdfkQoBg-SZoRyUloyKiClTEYOp3_gJYLsan38PHyZ3c"/>
+</div>
+<div class="flex flex-col">
+<span class="text-xs text-slate-500 font-medium">Creator</span>
+<span class="text-slate-200 font-bold">iMagiMason</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Bottom Bar -->
+<footer class="fixed bottom-0 z-50 w-full max-w-[450px] px-6 py-6 bg-background-dark/90 glass-effect border-t border-primary/20">
+<div class="flex items-center justify-between gap-6">
+<div class="flex flex-col shrink-0">
+<span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Current Bid</span>
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-black text-slate-100">4.85</span>
+<span class="text-primary font-bold text-sm uppercase">ETH</span>
+</div>
+</div>
+<button class="flex-1 bg-primary hover:bg-primary/90 text-background-dark font-black uppercase tracking-widest py-4 rounded-xl shadow-[0_0_20px_rgba(238,173,43,0.3)] active:scale-95 transition-all text-sm">
+                        Place Bid
+                    </button>
+</div>
+</footer>
+</div>
+<!-- Desktop Decorative Background Elements -->
+<div class="fixed top-20 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="fixed bottom-20 -right-20 w-80 h-80 bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+</div>
+</body></html>
