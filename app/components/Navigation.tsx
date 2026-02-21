@@ -26,7 +26,7 @@ export function Navigation() {
   const isHome = pathname === "/";
   const headerClass = isHome
     ? "fixed top-0 w-full z-50 glass-nav"
-    : "sticky top-0 z-50 border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md";
+    : "sticky top-0 z-50 border-b border-primary/10 bg-background-dark/80 backdrop-blur-md";
 
   return (
     <>
@@ -46,11 +46,13 @@ export function Navigation() {
               <>
                 <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#story">Story</Link>
                 <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#drops">Drops</Link>
+                <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="/echoes">Echoes</Link>
                 <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="/listen">Listen</Link>
               </>
             ) : (
               <>
                 <Link className={`text-sm font-medium hover:text-primary transition-colors ${pathname === '/' ? 'text-primary border-b-2 border-primary pb-1' : ''}`} href="/">Home</Link>
+                <Link className={`text-sm font-medium hover:text-primary transition-colors ${pathname === '/echoes' ? 'text-primary border-b-2 border-primary pb-1' : ''}`} href="/echoes">Echoes</Link>
                 <Link className={`text-sm font-medium hover:text-primary transition-colors ${pathname === '/drop' ? 'text-primary border-b-2 border-primary pb-1' : ''}`} href="/drop">Live Auction</Link>
                 <Link className={`text-sm font-medium hover:text-primary transition-colors ${pathname === '/listen' ? 'text-primary border-b-2 border-primary pb-1' : ''}`} href="/listen">Listen</Link>
                 <button onClick={openArchiveModal} className="text-sm font-medium hover:text-primary transition-colors">Archive</button>
@@ -100,7 +102,7 @@ export function Navigation() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed inset-0 z-40 bg-background-light/95 dark:bg-[#0a0f0a]/95 backdrop-blur-xl flex flex-col pt-24 px-6 pb-12 overflow-y-auto"
+            className="fixed inset-0 z-40 bg-background-dark/95 backdrop-blur-xl flex flex-col pt-24 px-6 pb-12 overflow-y-auto"
           >
             <nav className="flex flex-col gap-8 mt-8">
               <Link 
@@ -116,6 +118,13 @@ export function Navigation() {
                 className={`text-3xl font-black uppercase tracking-tighter hover:text-primary transition-colors ${pathname === '/drop' ? 'text-primary' : 'text-slate-100'}`}
               >
                 Live Auction
+              </Link>
+              <Link 
+                href="/echoes" 
+                onClick={closeMenu}
+                className={`text-3xl font-black uppercase tracking-tighter hover:text-primary transition-colors ${pathname === '/echoes' ? 'text-primary' : 'text-slate-100'}`}
+              >
+                Echoes
               </Link>
               <Link 
                 href="/listen" 

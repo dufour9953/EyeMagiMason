@@ -53,4 +53,9 @@
 
 body {
     background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAaFWyjhTZRx7EACmGLYVx74tUzJJfK5IlcxeM21H5oz3CQk0_OkEWbDlJOh0-Q0Tzn9JRkvwXDofa_-ixJAlmb-WdS6hFx1eI5GxhVHNqEYRh9L0Fa2fnBczreFLZTC1hIK5prEhtp98rSUItc2tW4HOmMoulWDGn6ffx7TB-P372imFkWj8h0dkIuol6MLiCZsH4KnQjvjZsPnvYMhFHRiFHNs_JgCsTq9dFB2mJQoaQGzvIH2EFJPdrgV-jb_6jM4lIMDJNEAiI);
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: var(--color-background-dark);
 }
