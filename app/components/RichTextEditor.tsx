@@ -3,7 +3,7 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 interface RichTextEditorProps {
   content: string;
@@ -12,6 +12,8 @@ interface RichTextEditorProps {
 }
 
 export default function RichTextEditor({ content, onChange, placeholder = "Start writing..." }: RichTextEditorProps) {
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -29,7 +31,11 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
       },
     },
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      // Debounce the state update to prevent UI stuttering on every keystroke
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        onChange(editor.getHTML());
+      }, 500);
     },
   });
 

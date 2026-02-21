@@ -14,6 +14,7 @@ export default function LandingPage() {
   const { isPlaying, togglePlay, progress, duration, formatTime } = useAudio();
   const [timeLeft, setTimeLeft] = useState({ days: "02", hours: "14", minutes: "56" });
   const [events, setEvents] = useState<any[]>([]);
+  const [stories, setStories] = useState<any[]>([]);
   
   // Dynamic Content State
   const [heroSubtitle, setHeroSubtitle] = useState("Breathing life into wood, weaving sound into soul.\n1-of-1 handcrafted flutes and their exclusive sonic echoes.");
@@ -35,6 +36,12 @@ export default function LandingPage() {
         .order('event_date', { ascending: true })
         .limit(3);
       if (eventsData) setEvents(eventsData);
+
+      const { data: storiesData } = await supabase.from('stories')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(2);
+      if (storiesData) setStories(storiesData);
     };
     fetchContent();
 
@@ -257,6 +264,40 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Latest Stories */}
+      {stories.length > 0 && (
+        <section className="py-24 px-6 border-t border-white/5 bg-background-dark relative">
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="flex justify-between items-end mb-12">
+              <h2 className="text-3xl font-black uppercase flex items-center gap-4">
+                <span className="material-symbols-outlined text-primary">auto_stories</span>
+                The Journal
+              </h2>
+              <Link href="/journal" className="text-primary text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:gap-4 transition-all group hidden sm:flex">
+                View All <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </Link>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8">
+              {stories.map((story) => (
+                <Link key={story.id} href="/journal" className="group block bg-charcoal/30 border border-white/5 rounded-2xl p-8 hover:border-primary/30 transition-all shadow-xl">
+                  <div className="flex justify-between items-start mb-6">
+                    <span className="text-[10px] font-bold uppercase tracking-widest bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20">
+                      {new Date(story.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors">{story.title}</h3>
+                  <div className="text-slate-400 font-light line-clamp-3" dangerouslySetInnerHTML={{ __html: story.content }} />
+                </Link>
+              ))}
+            </div>
+            <Link href="/journal" className="mt-8 text-primary text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:gap-4 transition-all group sm:hidden justify-center w-full">
+               View All <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Upcoming Events */}
       <section className="py-24 px-6 border-t border-white/5 bg-background-dark relative">

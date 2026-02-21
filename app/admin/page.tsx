@@ -890,8 +890,17 @@ export default function AdminDashboard() {
                           const temporaryAudio = new Audio();
                           temporaryAudio.src = URL.createObjectURL(file);
                           temporaryAudio.onloadedmetadata = () => {
-                            setTrackDuration(Math.floor(temporaryAudio.duration));
-                            URL.revokeObjectURL(temporaryAudio.src);
+                            if (temporaryAudio.duration === Infinity) {
+                              temporaryAudio.currentTime = Number.MAX_SAFE_INTEGER;
+                              temporaryAudio.ondurationchange = () => {
+                                temporaryAudio.currentTime = 0;
+                                setTrackDuration(Math.floor(temporaryAudio.duration));
+                                URL.revokeObjectURL(temporaryAudio.src);
+                              };
+                            } else {
+                              setTrackDuration(Math.floor(temporaryAudio.duration));
+                              URL.revokeObjectURL(temporaryAudio.src);
+                            }
                           };
                         }
                       }} 
