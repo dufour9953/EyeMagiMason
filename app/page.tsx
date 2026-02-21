@@ -1,7 +1,46 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useUI } from "./contexts/UIContext";
+import { useAudio } from "./contexts/AudioContext";
+import { motion } from "framer-motion";
 
 export default function LandingPage() {
+  const { openPreviewModal } = useUI();
+  const { isPlaying, togglePlay, progress, duration, formatTime } = useAudio();
+  const [timeLeft, setTimeLeft] = useState({ days: "02", hours: "14", minutes: "56" });
+
+  useEffect(() => {
+    // Handle the live ticking countdown for the featured drop
+    const endTime = new Date();
+    endTime.setDate(endTime.getDate() + 2);
+    endTime.setHours(endTime.getHours() + 14);
+    endTime.setMinutes(endTime.getMinutes() + 56);
+
+    const timer = setInterval(() => {
+      const now = new Date();
+      const diff = endTime.getTime() - now.getTime();
+      
+      if (diff <= 0) {
+        clearInterval(timer);
+        setTimeLeft({ days: "00", hours: "00", minutes: "00" });
+      } else {
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / 1000 / 60) % 60);
+        setTimeLeft({
+          days: d.toString().padStart(2, '0'),
+          hours: h.toString().padStart(2, '0'),
+          minutes: m.toString().padStart(2, '0')
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <>
       {/* Navigation */}
@@ -29,7 +68,12 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+      <motion.section 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden"
+      >
         <div className="absolute inset-0 opacity-30 pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px]"></div>
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-terracotta/20 rounded-full blur-[120px]"></div>
@@ -43,26 +87,34 @@ export default function LandingPage() {
             1-of-1 handcrafted flutes and their exclusive sonic echoes.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/drop" className="w-full sm:w-auto px-10 py-4 bg-primary text-background-dark font-bold rounded-xl text-lg uppercase tracking-widest hover:scale-105 transition-transform">
-              View Next Drop
-            </Link>
+            <motion.div className="w-full sm:w-auto" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link href="/drop" className="w-full sm:w-auto px-10 py-4 bg-primary text-background-dark font-bold rounded-xl text-lg uppercase tracking-widest block">
+                View Next Drop
+              </Link>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Artist Story Section */}
-      <section className="py-24 px-6 bg-charcoal/50" id="story">
+      <motion.section 
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8 }}
+        className="py-24 px-6 bg-charcoal/50" id="story"
+      >
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
           <div className="relative aspect-[4/5] rounded-2xl overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent z-10"></div>
             <img 
-              alt="Mason carving a flute in a sunlit studio" 
+              alt="Mason Izaguirre-Pyle playing a cedar flute in a sunlit studio" 
               className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000 scale-105 group-hover:scale-100" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAd2hxeTngbve_tHyDrHrBcElBstHcxTXporVZKZoLP8CRkeyDmJRPT85UNLrJ-a8HB4eQfS9R51qmTIwdeVfNyun13OGgyhCcqLrZAZCxiwHJduA0SftwOrthj-e8OLIDwjOrPjANmyF7HMIbso75q_WkC8_1bah2C0BXY7ity_ohheiP12Agd5POUzx_ut6EO7FOtq1pjnDkC9_-d-TxAjrOWqwHaRDhl6YYPHzWTjs_ZqQlUERPbJmR48QsvYOlaWpUPA9ykZ9A"
+              src="/mason_magi_portrait.png"
             />
             <div className="absolute bottom-8 left-8 z-20">
-              <p className="text-primary font-bold uppercase tracking-widest text-sm mb-2">The Maker</p>
-              <h3 className="text-3xl font-bold">Mason Thorne</h3>
+              <p className="text-primary font-bold uppercase tracking-widest text-sm mb-2">Eye Magi Mason</p>
+              <h3 className="text-3xl font-bold">Mason Izaguirre-Pyle</h3>
             </div>
           </div>
           <div className="space-y-8">
@@ -94,7 +146,7 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Featured Drop Card */}
       <section className="py-24 px-6" id="drops">
@@ -106,17 +158,17 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center gap-4 bg-charcoal p-4 rounded-xl border border-white/5">
               <div className="text-center px-4">
-                <p className="text-2xl font-black text-primary">02</p>
+                <p className="text-2xl font-black text-primary">{timeLeft.days}</p>
                 <p className="text-[10px] uppercase tracking-widest text-slate-500">Days</p>
               </div>
               <div className="w-px h-8 bg-white/10"></div>
               <div className="text-center px-4">
-                <p className="text-2xl font-black text-primary">14</p>
+                <p className="text-2xl font-black text-primary">{timeLeft.hours}</p>
                 <p className="text-[10px] uppercase tracking-widest text-slate-500">Hrs</p>
               </div>
               <div className="w-px h-8 bg-white/10"></div>
               <div className="text-center px-4">
-                <p className="text-2xl font-black text-primary">56</p>
+                <p className="text-2xl font-black text-primary">{timeLeft.minutes}</p>
                 <p className="text-[10px] uppercase tracking-widest text-slate-500">Min</p>
               </div>
             </div>
@@ -224,36 +276,42 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="w-full md:w-1/2 bg-charcoal p-6 rounded-2xl flex items-center gap-6 border border-white/5">
-            <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 group">
+            <div onClick={togglePlay} className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 group cursor-pointer">
               <img 
                 alt="Ambient waveform art" 
                 className="w-full h-full object-cover" 
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqjUUFdP3D9JDSuzJIQBKANka6g02iMVb8766dslxX6Vtn76qMt12bug2IM--1-uGMKGSt5tzaRcg8r51OFfEd1ZRluAG-01PaIPKy6SUF1BMHuFCjhBG1VecKyFmvEBsDQeKfg4PYHgsaw2BqKNtKpp_Rx4c2QuMrBkjWrBtjlTD3SDwOlwxjed4fJ-8d-g3HHOloMvCJ7L8nzklKKDp1XjsvUQrU-swlMdJzdsQgW4t5ptwKBl9zYO6QpRdfvhqT9VX7qJ37up8"
               />
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                <span className="material-symbols-outlined text-white">play_arrow</span>
+              <div className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity ${isPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                <span className="material-symbols-outlined text-white">{isPlaying ? 'pause' : 'play_arrow'}</span>
               </div>
             </div>
             <div className="grow">
-              <p className="text-xs uppercase tracking-widest text-primary font-bold mb-1">Now Previewing</p>
-              <p className="text-lg font-bold uppercase mb-2">Echo of the High Desert</p>
-              <div className="h-1 bg-white/10 rounded-full w-full overflow-hidden">
-                <div className="h-full bg-primary w-1/3"></div>
+              <p className="text-xs uppercase tracking-widest text-primary font-bold mb-1">Listen to Snippet</p>
+              <p className="text-lg font-bold uppercase mb-2">Straight off the Block</p>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-slate-500 font-mono w-6 text-right">{formatTime(progress)}</span>
+                <div className="h-1 bg-white/10 rounded-full w-full overflow-hidden">
+                  <div className="h-full bg-primary" style={{ width: `${duration > 0 ? (progress / duration) * 100 : 0}%` }}></div>
+                </div>
+                <span className="text-[10px] text-slate-500 font-mono w-6">{formatTime(duration)}</span>
               </div>
             </div>
             <div className="flex items-center gap-4 text-slate-400">
-              <span className="material-symbols-outlined cursor-pointer hover:text-white transition-colors">skip_previous</span>
-              <span className="material-symbols-outlined cursor-pointer hover:text-white transition-colors text-4xl">play_circle</span>
-              <span className="material-symbols-outlined cursor-pointer hover:text-white transition-colors">skip_next</span>
+              <span className="material-symbols-outlined cursor-not-allowed opacity-50">skip_previous</span>
+              <span onClick={togglePlay} className={`material-symbols-outlined cursor-pointer hover:text-white transition-colors text-4xl ${isPlaying ? 'text-primary' : ''}`}>
+                {isPlaying ? 'pause_circle' : 'play_circle'}
+              </span>
+              <span className="material-symbols-outlined cursor-not-allowed opacity-50">skip_next</span>
             </div>
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-600 font-bold uppercase tracking-[0.2em]">
           <p>© {new Date().getFullYear()} iMagiMason Studio. All rights reserved.</p>
           <div className="flex gap-8">
-            <Link className="hover:text-primary transition-colors" href="#">Privacy</Link>
-            <Link className="hover:text-primary transition-colors" href="#">Terms</Link>
-            <Link className="hover:text-primary transition-colors" href="#">Instagram</Link>
+            <button onClick={() => openPreviewModal('Privacy Policy')} className="hover:text-primary transition-colors text-xs font-bold uppercase tracking-[0.2em]">Privacy</button>
+            <button onClick={() => openPreviewModal('Terms of Service')} className="hover:text-primary transition-colors text-xs font-bold uppercase tracking-[0.2em]">Terms</button>
+            <button onClick={() => openPreviewModal('Instagram (Not Connected)')} className="hover:text-primary transition-colors text-xs font-bold uppercase tracking-[0.2em]">Instagram</button>
           </div>
         </div>
       </footer>
