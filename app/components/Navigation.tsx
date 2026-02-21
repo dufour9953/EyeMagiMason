@@ -10,6 +10,7 @@ export function Navigation() {
   const pathname = usePathname();
   const { openArchiveModal, openAboutModal, openPreviewModal } = useUI();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isListenMenuOpen, setIsListenMenuOpen] = useState(false);
 
   // Prevent scrolling when mobile menu is open
   useEffect(() => {
@@ -20,7 +21,10 @@ export function Navigation() {
     }
   }, [isMobileMenuOpen]);
 
-  const closeMenu = () => setIsMobileMenuOpen(false);
+  const closeMenu = () => {
+    setIsMobileMenuOpen(false);
+    setIsListenMenuOpen(false);
+  };
 
   // Determine styling based on route (Home transparent vs sticky border on pages)
   const isHome = pathname === "/";
@@ -46,17 +50,79 @@ export function Navigation() {
               <>
                 <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#story">Story</Link>
                 <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#drops">Drops</Link>
-                <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="/echoes">Echoes</Link>
-                <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="/listen">Listen</Link>
+                <div className="relative" onMouseEnter={() => setIsListenMenuOpen(true)} onMouseLeave={() => setIsListenMenuOpen(false)}>
+                  <button 
+                    onClick={() => setIsListenMenuOpen(!isListenMenuOpen)}
+                    className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest flex items-center gap-1 focus:outline-none"
+                  >
+                    Listen
+                    <span className="material-symbols-outlined text-[16px] transition-transform duration-300" style={{ transform: isListenMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>keyboard_arrow_down</span>
+                  </button>
+                  <AnimatePresence>
+                    {isListenMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="absolute top-[120%] left-1/2 -translate-x-1/2 w-48 bg-background-dark/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 flex flex-col gap-1 shadow-[0_20px_40px_rgba(0,0,0,0.5)] z-50 overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-primary/5 pointer-events-none rounded-2xl"></div>
+                        <Link href="/listen" onClick={() => setIsListenMenuOpen(false)} className="relative z-10 px-4 py-3 text-xs uppercase tracking-widest font-bold text-slate-300 hover:text-primary hover:bg-white/5 rounded-xl transition-all flex items-center justify-between group">
+                          Library <span className="material-symbols-outlined text-xs opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary">play_arrow</span>
+                        </Link>
+                        <Link href="/echoes" onClick={() => setIsListenMenuOpen(false)} className="relative z-10 px-4 py-3 text-xs uppercase tracking-widest font-bold text-slate-300 hover:text-primary hover:bg-white/5 rounded-xl transition-all flex items-center justify-between group">
+                          Echoes <span className="material-symbols-outlined text-xs opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary">auto_stories</span>
+                        </Link>
+                        <button onClick={() => { openArchiveModal(); setIsListenMenuOpen(false); }} className="relative z-10 px-4 py-3 text-xs uppercase tracking-widest font-bold text-slate-300 hover:text-primary hover:bg-white/5 rounded-xl transition-all text-left flex items-center justify-between group focus:outline-none">
+                          Archive <span className="material-symbols-outlined text-xs opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary">history</span>
+                        </button>
+                        <button onClick={() => { openAboutModal(); setIsListenMenuOpen(false); }} className="relative z-10 px-4 py-3 text-xs uppercase tracking-widest font-bold text-slate-300 hover:text-primary hover:bg-white/5 rounded-xl transition-all text-left flex items-center justify-between group focus:outline-none">
+                          About <span className="material-symbols-outlined text-xs opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary">info</span>
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </>
             ) : (
               <>
                 <Link className={`text-sm font-medium hover:text-primary transition-colors ${pathname === '/' ? 'text-primary border-b-2 border-primary pb-1' : ''}`} href="/">Home</Link>
-                <Link className={`text-sm font-medium hover:text-primary transition-colors ${pathname === '/echoes' ? 'text-primary border-b-2 border-primary pb-1' : ''}`} href="/echoes">Echoes</Link>
                 <Link className={`text-sm font-medium hover:text-primary transition-colors ${pathname === '/drop' ? 'text-primary border-b-2 border-primary pb-1' : ''}`} href="/drop">Live Auction</Link>
-                <Link className={`text-sm font-medium hover:text-primary transition-colors ${pathname === '/listen' ? 'text-primary border-b-2 border-primary pb-1' : ''}`} href="/listen">Listen</Link>
-                <button onClick={openArchiveModal} className="text-sm font-medium hover:text-primary transition-colors">Archive</button>
-                <button onClick={openAboutModal} className="text-sm font-medium hover:text-primary transition-colors">About</button>
+                <div className="relative" onMouseEnter={() => setIsListenMenuOpen(true)} onMouseLeave={() => setIsListenMenuOpen(false)}>
+                  <button 
+                    onClick={() => setIsListenMenuOpen(!isListenMenuOpen)}
+                    className={`text-sm font-medium hover:text-primary transition-colors flex items-center gap-1 focus:outline-none ${(pathname === '/listen' || pathname === '/echoes' || isListenMenuOpen) ? 'text-primary border-b-2 border-primary pb-1' : ''}`}
+                  >
+                    Listen
+                    <span className="material-symbols-outlined text-[16px] transition-transform duration-300" style={{ transform: isListenMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>keyboard_arrow_down</span>
+                  </button>
+                  <AnimatePresence>
+                    {isListenMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="absolute top-[120%] left-1/2 -translate-x-1/2 w-48 bg-background-dark/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 flex flex-col gap-1 shadow-[0_20px_40px_rgba(0,0,0,0.5)] z-50 overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-primary/5 pointer-events-none rounded-2xl"></div>
+                        <Link href="/listen" onClick={() => setIsListenMenuOpen(false)} className="relative z-10 px-4 py-3 text-sm font-medium text-slate-300 hover:text-primary hover:bg-white/5 rounded-xl transition-all flex items-center justify-between group">
+                          Library <span className="material-symbols-outlined text-xs opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary">play_arrow</span>
+                        </Link>
+                        <Link href="/echoes" onClick={() => setIsListenMenuOpen(false)} className="relative z-10 px-4 py-3 text-sm font-medium text-slate-300 hover:text-primary hover:bg-white/5 rounded-xl transition-all flex items-center justify-between group">
+                          Echoes <span className="material-symbols-outlined text-xs opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary">auto_stories</span>
+                        </Link>
+                        <button onClick={() => { openArchiveModal(); setIsListenMenuOpen(false); }} className="relative z-10 px-4 py-3 text-sm font-medium text-slate-300 hover:text-primary hover:bg-white/5 rounded-xl transition-all text-left flex items-center justify-between group focus:outline-none">
+                          Archive <span className="material-symbols-outlined text-xs opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary">history</span>
+                        </button>
+                        <button onClick={() => { openAboutModal(); setIsListenMenuOpen(false); }} className="relative z-10 px-4 py-3 text-sm font-medium text-slate-300 hover:text-primary hover:bg-white/5 rounded-xl transition-all text-left flex items-center justify-between group focus:outline-none">
+                          About <span className="material-symbols-outlined text-xs opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary">info</span>
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </>
             )}
           </nav>
@@ -119,35 +185,32 @@ export function Navigation() {
               >
                 Live Auction
               </Link>
-              <Link 
-                href="/echoes" 
-                onClick={closeMenu}
-                className={`text-3xl font-black uppercase tracking-tighter hover:text-primary transition-colors ${pathname === '/echoes' ? 'text-primary' : 'text-slate-100'}`}
-              >
-                Echoes
-              </Link>
-              <Link 
-                href="/listen" 
-                onClick={closeMenu}
-                className={`text-3xl font-black uppercase tracking-tighter hover:text-primary transition-colors ${pathname === '/listen' ? 'text-primary' : 'text-slate-100'}`}
-              >
-                Listen
-              </Link>
-              
-              <div className="w-12 h-px bg-white/20 my-2" />
-              
-              <button 
-                onClick={() => { openArchiveModal(); closeMenu(); }}
-                className="text-2xl font-bold tracking-tight text-left hover:text-primary transition-colors text-slate-300"
-              >
-                Archive
-              </button>
-              <button 
-                onClick={() => { openAboutModal(); closeMenu(); }}
-                className="text-2xl font-bold tracking-tight text-left hover:text-primary transition-colors text-slate-300"
-              >
-                About
-              </button>
+              <div className="flex flex-col">
+                <button 
+                  onClick={() => setIsListenMenuOpen(!isListenMenuOpen)}
+                  className={`text-3xl font-black uppercase tracking-tighter hover:text-primary transition-colors flex items-center justify-between w-full focus:outline-none ${(pathname === '/listen' || pathname === '/echoes' || isListenMenuOpen) ? 'text-primary' : 'text-slate-100'}`}
+                >
+                  Listen
+                  <span className="material-symbols-outlined text-3xl transition-transform duration-300" style={{ transform: isListenMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>keyboard_arrow_down</span>
+                </button>
+                
+                <AnimatePresence>
+                  {isListenMenuOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex flex-col gap-6 mt-6 ml-6 overflow-hidden border-l-2 border-white/5 pl-4"
+                    >
+                      <Link href="/listen" onClick={closeMenu} className="text-2xl font-bold tracking-tight text-slate-300 hover:text-primary transition-colors pb-2">Library</Link>
+                      <Link href="/echoes" onClick={closeMenu} className="text-xl font-bold tracking-tight text-slate-400 hover:text-primary transition-colors pb-2">Echoes</Link>
+                      <button onClick={() => { openArchiveModal(); closeMenu(); }} className="text-xl font-bold tracking-tight text-left text-slate-400 hover:text-primary transition-colors pb-2 focus:outline-none">Archive</button>
+                      <button onClick={() => { openAboutModal(); closeMenu(); }} className="text-xl font-bold tracking-tight text-left text-slate-400 hover:text-primary transition-colors pb-2 focus:outline-none">About</button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               <div className="flex-grow" />
 
