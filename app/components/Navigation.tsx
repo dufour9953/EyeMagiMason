@@ -142,9 +142,20 @@ export function Navigation() {
 
               <div className="flex-grow" />
 
+              {/* Admin Link (Mobile) */}
+              <Link 
+                href="/admin" 
+                onClick={closeMenu}
+                className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-primary/10 text-primary border border-primary/20 font-black text-lg uppercase tracking-wider rounded-xl hover:bg-primary/20 transition-all mt-4"
+              >
+                <span className="material-symbols-outlined text-xl">account_balance_wallet</span>
+                Admin Login
+              </Link>
+
+              {/* Wallet Link (Mobile) */}
               <button 
                 onClick={() => { openPreviewModal("Wallet Connection"); closeMenu(); }} 
-                className="w-full mt-12 flex items-center justify-center gap-3 px-6 py-4 bg-primary text-background-dark font-black text-lg uppercase tracking-wider rounded-xl hover:brightness-110 transition-all"
+                className="w-full mt-4 flex items-center justify-center gap-3 px-6 py-4 bg-primary text-background-dark font-black text-lg uppercase tracking-wider rounded-xl hover:brightness-110 transition-all"
               >
                 <span className="material-symbols-outlined text-xl">account_balance_wallet</span>
                 Connect Wallet
