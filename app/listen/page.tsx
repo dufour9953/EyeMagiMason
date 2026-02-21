@@ -9,7 +9,7 @@ import { Navigation } from "../components/Navigation";
 
 export default function ListenPage() {
   const { openPreviewModal, openArchiveModal, openAboutModal } = useUI();
-  const { togglePlay, isPlaying, setAudioSource, currentTrack } = useAudio();
+  const { togglePlay, isPlaying, setAudioSource, currentTrack, formatTime } = useAudio();
   const [hoveredTrack, setHoveredTrack] = useState<string | null>(null);
   const [libraryTracks, setLibraryTracks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ export default function ListenPage() {
     if (currentTrack && currentTrack.title === track.title) {
       togglePlay();
     } else {
-      setAudioSource(track.audio_url, track.title, `${track.wood_type} • ${track.tuning}`);
+      setAudioSource(track.audio_url, track.title, `${track.wood_type} • ${track.tuning}`, track.cover_art_url);
       
       const newPlays = (track.plays || 0) + 1;
       await supabase.from('audio_tracks').update({ plays: newPlays }).eq('id', track.id);
@@ -157,7 +157,7 @@ export default function ListenPage() {
                         {track.plays || 0}
                       </td>
                       <td className="px-6 py-4 text-slate-400 font-mono text-sm text-right">
-                        {track.duration}
+                        {track.duration ? formatTime(Number(track.duration)) : "00:00"}
                       </td>
                     </tr>
                   );

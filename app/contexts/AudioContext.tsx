@@ -8,9 +8,9 @@ interface AudioContextType {
   duration: number;
   togglePlay: () => void;
   formatTime: (time: number) => string;
-  setAudioSource: (src: string, title: string, subtitle: string) => void;
+  setAudioSource: (src: string, title: string, subtitle: string, coverArt?: string) => void;
   stop: () => void;
-  currentTrack: { title: string; subtitle: string } | null;
+  currentTrack: { title: string; subtitle: string; coverArt?: string } | null;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -19,7 +19,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [currentTrack, setCurrentTrack] = useState<{ title: string; subtitle: string } | null>({
+  const [currentTrack, setCurrentTrack] = useState<{ title: string; subtitle: string; coverArt?: string } | null>({
     title: "The Cedar Solace",
     subtitle: "Original Composition by Mason"
   });
@@ -77,11 +77,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const setAudioSource = (src: string, title: string, subtitle: string) => {
+  const setAudioSource = (src: string, title: string, subtitle: string, coverArt?: string) => {
     if (audioRef.current) {
       const wasPlaying = isPlaying;
       audioRef.current.src = src;
-      setCurrentTrack({ title, subtitle });
+      setCurrentTrack({ title, subtitle, coverArt });
       if (wasPlaying) {
         audioRef.current.play().catch(e => console.error(e));
       }

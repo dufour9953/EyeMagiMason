@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../../lib/supabase";
 import { useUI } from "../contexts/UIContext";
 import { useAudio } from "../contexts/AudioContext"; // Now pulling in the global audio player
+import RichTextEditor from "../components/RichTextEditor";
 
 export default function AdminDashboard() {
   const { openPreviewModal } = useUI();
@@ -38,6 +40,8 @@ export default function AdminDashboard() {
   // Story & Calendar Form States
   const [storyTitle, setStoryTitle] = useState("");
   const [storyContent, setStoryContent] = useState("");
+  const [isAutoSavingStory, setIsAutoSavingStory] = useState(false);
+  const [lastSavedStoryTime, setLastSavedStoryTime] = useState<Date | null>(null);
   const [eventTitle, setEventTitle] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventLocation, setEventLocation] = useState("");
@@ -54,9 +58,19 @@ export default function AdminDashboard() {
   const [trackTitle, setTrackTitle] = useState("");
   const [trackWood, setTrackWood] = useState("");
   const [trackTuning, setTrackTuning] = useState("");
-  const [trackDuration, setTrackDuration] = useState("");
+  const [trackDuration, setTrackDuration] = useState<number | "">("");
   const [isTrackFeatured, setIsTrackFeatured] = useState(false);
   const [isSavingTrack, setIsSavingTrack] = useState(false);
+
+  // Toast State
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
+
+  const triggerToast = (msg: string) => {
+    setToastMessage(msg);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -117,9 +131,9 @@ export default function AdminDashboard() {
       
       const { error } = await supabase.from('site_content').upsert(updates);
       if (error) throw error;
-      alert('Global copy successfully updated!');
+      triggerToast('Global copy successfully updated!');
     } catch (err: any) {
-      alert('Failed to save content: ' + err.message);
+      triggerToast('Failed to save content: ' + err.message);
     } finally {
       setIsSavingContent(false);
     }
@@ -133,19 +147,20 @@ export default function AdminDashboard() {
     try {
       const { error } = await supabase.from('stories').insert([{
         title: storyTitle,
-        content: storyContent,
+        content: storyContent, // Now saving sanitized HTML from Tiptap
         status: 'DRAFT'
       }]);
       
       if (error) throw error;
-      alert("Story saved successfully!");
+      triggerToast("Story Published Successfully!");
       setStoryTitle("");
       setStoryContent("");
+      setLastSavedStoryTime(null);
       // Refresh the stories list
       const { data: sData } = await supabase.from('stories').select('*').order('created_at', { ascending: false });
       if (sData) setStories(sData);
     } catch (err: any) {
-      alert("Error saving story: " + err.message);
+      triggerToast("Error saving story: " + err.message);
     } finally {
       setIsSavingStory(false);
     }
@@ -183,7 +198,7 @@ export default function AdminDashboard() {
       }]);
       
       if (error) throw error;
-      alert("Track saved to library!");
+      triggerToast("Track Saved to Library!");
       
       setTrackTitle("");
       setTrackWood("");
@@ -196,7 +211,7 @@ export default function AdminDashboard() {
       const { data: aData } = await supabase.from('audio_tracks').select('*').order('created_at', { ascending: false });
       if (aData) setAudioTracks(aData);
     } catch (err: any) {
-      alert("Failed to save track: " + err.message);
+      triggerToast("Failed to save track: " + err.message);
     } finally {
       setIsSavingTrack(false);
     }
@@ -226,7 +241,7 @@ export default function AdminDashboard() {
       }]);
 
       if (error) throw error;
-      alert("Event scheduled successfully!");
+      triggerToast("Event Scheduled Successfully!");
       setEventTitle("");
       setEventDate("");
       setEventLocation("");
@@ -234,7 +249,7 @@ export default function AdminDashboard() {
       const { data: eData } = await supabase.from('calendar_events').select('*').order('event_date', { ascending: true });
       if (eData) setEvents(eData);
     } catch (err: any) {
-      alert("Error saving event: " + err.message);
+      triggerToast("Error saving event: " + err.message);
     } finally {
       setIsSavingEvent(false);
     }
@@ -267,7 +282,7 @@ export default function AdminDashboard() {
 
   const handleLaunch = async () => {
     if (!title || !startingBid || !fluteImage || !audioFile) {
-      alert("Please complete the form and upload both media files before launching.");
+      triggerToast("Please complete the form and upload both media files before launching.");
       return;
     }
     setIsPublishing(true);
@@ -294,7 +309,7 @@ export default function AdminDashboard() {
 
       if (error) throw error;
       
-      alert("Auction Successfully Launched!");
+      triggerToast("Auction Successfully Launched!");
       setTitle("");
       setDescription("");
       setStartingBid("");
@@ -304,7 +319,7 @@ export default function AdminDashboard() {
       setAudioFile(null);
       setActiveTab("Overview");
     } catch (err: any) {
-      alert("Failed to launch drop: " + err.message);
+      triggerToast("Failed to launch drop: " + err.message);
     } finally {
       setIsPublishing(false);
     }
@@ -384,34 +399,78 @@ export default function AdminDashboard() {
         </nav>
       </aside>
 
+      {/* Admin Toast Notification */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-8 right-8 z-50 bg-[#121a12]/90 backdrop-blur-md border border-primary/30 p-4 rounded-xl shadow-2xl flex items-center gap-3 max-w-sm"
+          >
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+            </div>
+            <p className="text-sm font-medium text-slate-100">{toastMessage}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="h-16 border-b border-moss-border px-8 shrink-0 flex items-center justify-between sticky top-0 bg-[#121a12]/80 backdrop-blur-md z-10">
+        <header className="h-16 border-b border-moss-border px-4 md:px-8 shrink-0 flex items-center justify-between sticky top-0 bg-[#121a12]/80 backdrop-blur-md z-20">
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-semibold">{activeTab}</h2>
             {activeTab === 'Manage Drops' && <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-moss-muted text-slate-400 uppercase tracking-widest border border-moss-border">Drafting</span>}
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/drop" className="text-sm font-medium text-slate-400 hover:text-slate-100 transition-colors">Preview Storefront</Link>
+          <div className="flex items-center gap-3">
+            <Link href="/drop" className="text-xs md:text-sm font-medium text-slate-400 hover:text-slate-100 transition-colors">Preview Storefront</Link>
+            
+            {/* Mobile Logout Button */}
+            <button 
+              onClick={handleLogout} 
+              title="Log Out"
+              className="lg:hidden w-8 h-8 rounded-full bg-moss-muted/50 text-slate-400 hover:text-red-400 hover:bg-red-400/10 flex items-center justify-center transition-colors border border-moss-border"
+            >
+              <span className="material-symbols-outlined text-[16px]">logout</span>
+            </button>
           </div>
         </header>
 
-        <div className="p-8 max-w-6xl mx-auto w-full space-y-8 custom-scrollbar pb-32">
+        {/* Mobile Horizontal Sub-Navigation */}
+        <nav className="lg:hidden flex border-b border-moss-border px-4 py-3 overflow-x-auto whitespace-nowrap hide-scrollbar gap-2 bg-[#121a12]/95 backdrop-blur-md z-10 shrink-0">
+          {['Overview', 'Manage Drops', 'Site Content', 'Story Editor', 'Calendar', 'Bids & Results', 'Audio Lab'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors shrink-0 border ${
+                activeTab === tab 
+                  ? 'bg-primary/10 text-primary border-primary/20' 
+                  : 'bg-moss-muted/30 text-slate-400 border-moss-border hover:text-primary hover:border-primary/20'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </nav>
+
+        <div className="p-4 md:p-8 max-w-6xl mx-auto w-full space-y-8 custom-scrollbar pb-32">
           
           {/* OVERVIEW TAB */}
           {activeTab === 'Overview' && (
             <div className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-moss-muted/50 border border-moss-border p-6 rounded-xl flex flex-col gap-2">
+                <div className="bg-[#1a211a]/60 backdrop-blur-xl border border-primary/10 hover:border-primary/30 transition-all duration-300 p-6 rounded-xl flex flex-col gap-2">
                   <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Bids Engine</p>
                   <p className="text-2xl font-bold">{stats.bidCount}</p>
                 </div>
-                <div className="bg-moss-muted/50 border border-moss-border p-6 rounded-xl flex flex-col gap-2">
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active High Bid</p>
-                  <p className="text-2xl font-bold text-primary">${stats.highBid.toLocaleString()}</p>
+                <div className="bg-[#1a211a]/60 backdrop-blur-xl border border-primary/10 hover:border-primary/30 transition-all duration-300 p-6 rounded-xl flex flex-col gap-2 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider relative z-10">Active High Bid</p>
+                  <p className="text-2xl font-bold text-primary relative z-10">${stats.highBid.toLocaleString()}</p>
                 </div>
-                <div className="bg-moss-muted/50 border border-moss-border p-6 rounded-xl flex flex-col gap-2">
+                <div className="bg-[#1a211a]/60 backdrop-blur-xl border border-primary/10 hover:border-primary/30 transition-all duration-300 p-6 rounded-xl flex flex-col gap-2">
                   <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Drops Crafted</p>
                   <p className="text-2xl font-bold">1</p>
                 </div>
@@ -423,21 +482,21 @@ export default function AdminDashboard() {
                   <span className="material-symbols-outlined text-primary">history</span>
                   Latest Auction Activity
                 </h3>
-                  <div className="overflow-hidden border border-moss-border rounded-xl">
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-moss-muted text-slate-400 font-medium border-b border-moss-border">
+                  <div className="overflow-x-auto border border-primary/10 rounded-xl bg-[#1a211a]/40 backdrop-blur-md">
+                  <table className="w-full text-left text-sm min-w-[400px]">
+                    <thead className="bg-[#121a12]/80 text-primary/80 font-medium border-b border-primary/10">
                       <tr>
-                        <th className="px-6 py-3">Collector Name</th>
-                        <th className="px-6 py-3">Amount</th>
-                        <th className="px-6 py-3 text-right">Time</th>
+                        <th className="px-6 py-4 uppercase tracking-widest text-[10px]">Collector Name</th>
+                        <th className="px-6 py-4 uppercase tracking-widest text-[10px]">Amount</th>
+                        <th className="px-6 py-4 uppercase tracking-widest text-[10px] text-right">Time</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-moss-border">
+                    <tbody className="divide-y divide-primary/5">
                       {allBids.slice(0, 5).map((bid) => (
-                        <tr key={bid.id} className="bg-moss-muted/10 hover:bg-moss-muted/20 transition-colors">
+                        <tr key={bid.id} className="hover:bg-primary/5 transition-colors duration-300">
                           <td className="px-6 py-4 font-medium">{bid.bidder_name}</td>
                           <td className="px-6 py-4 font-bold text-primary">${bid.amount.toLocaleString()}</td>
-                          <td className="px-6 py-4 text-slate-500 text-right">{new Date(bid.created_at).toLocaleTimeString()}</td>
+                          <td className="px-6 py-4 text-slate-500 font-mono text-xs text-right">{new Date(bid.created_at).toLocaleTimeString()}</td>
                         </tr>
                       ))}
                       {allBids.length === 0 && (
@@ -464,7 +523,7 @@ export default function AdminDashboard() {
                     <input 
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      className="w-full bg-moss-muted border border-moss-border rounded-lg focus:ring-primary text-slate-100 px-4 py-2.5 outline-none" 
+                      className="w-full bg-black/20 backdrop-blur-sm border border-primary/20 rounded-lg focus:border-primary focus:ring-1 focus:ring-primary/50 text-slate-100 px-4 py-2.5 outline-none transition-all" 
                       placeholder="e.g. The Cedar Whisperer" 
                     />
                   </div>
@@ -483,19 +542,19 @@ export default function AdminDashboard() {
                     <input 
                       value={startingBid}
                       onChange={(e) => setStartingBid(e.target.value)}
-                      className="w-full bg-moss-muted border border-moss-border rounded-lg focus:ring-primary text-slate-100 px-4 py-2.5 outline-none" 
+                      className="w-full bg-black/20 backdrop-blur-sm border border-primary/20 rounded-lg focus:border-primary focus:ring-1 focus:ring-primary/50 text-slate-100 px-4 py-2.5 outline-none transition-all" 
                       placeholder="500.00" 
                       type="number" 
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-slate-300">Start Time</label>
                       <input 
                         type="datetime-local"
                         value={startTime}
                         onChange={(e) => setStartTime(e.target.value)}
-                        className="w-full bg-[color-mix(in_srgb,var(--moss-muted),rgba(255,255,255,0.05))] border border-moss-border rounded-lg focus:ring-primary text-slate-100 px-4 py-2.5 outline-none" 
+                        className="w-full bg-moss-muted border border-moss-border rounded-lg focus:ring-primary text-slate-100 px-4 py-2.5 outline-none" 
                       />
                     </div>
                     <div className="space-y-2">
@@ -504,7 +563,7 @@ export default function AdminDashboard() {
                         type="datetime-local"
                         value={endTime}
                         onChange={(e) => setEndTime(e.target.value)}
-                        className="w-full bg-[color-mix(in_srgb,var(--moss-muted),rgba(255,255,255,0.05))] border border-moss-border rounded-lg focus:ring-primary text-slate-100 px-4 py-2.5 outline-none" 
+                        className="w-full bg-moss-muted border border-moss-border rounded-lg focus:ring-primary text-slate-100 px-4 py-2.5 outline-none" 
                       />
                     </div>
                   </div>
@@ -579,7 +638,7 @@ export default function AdminDashboard() {
                     <textarea 
                       value={siteContent.about_text || ''}
                       onChange={(e) => setSiteContent(prev => ({ ...prev, about_text: e.target.value }))}
-                      className="w-full bg-background border border-moss-border rounded-lg text-slate-100 px-4 py-3 outline-none min-h-[250px] resize-y focus:border-primary/50 transition-colors"
+                      className="w-full bg-black/20 backdrop-blur-sm border border-primary/20 rounded-lg text-slate-100 px-4 py-3 outline-none min-h-[250px] resize-y focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all"
                       placeholder="Born in the quiet rain shadow..."
                     />
                  </div>
@@ -592,16 +651,27 @@ export default function AdminDashboard() {
                <div className="flex items-center justify-between">
                  <div>
                    <h3 className="text-xl font-bold mb-1">Story Content Editor</h3>
-                   <p className="text-slate-400 text-sm">Write and catalog your studio stories. Auto-saves as a draft.</p>
+                   <p className="text-slate-400 text-sm">Write and catalog your studio stories. Formatting is parsed automatically.</p>
                  </div>
                  <div className="flex items-center gap-3">
-                   <div className="flex items-center gap-2 text-xs text-slate-500 font-medium px-3 py-1.5 bg-moss-muted/30 rounded-full border border-moss-border">
-                     <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-40"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                     </span>
-                     Auto-saved just now
-                   </div>
+                   {lastSavedStoryTime && (
+                     <div className="flex items-center gap-2 text-xs text-slate-500 font-medium px-3 py-1.5 bg-moss-muted/30 rounded-full border border-moss-border transition-all">
+                       {isAutoSavingStory ? (
+                         <>
+                           <span className="material-symbols-outlined text-[14px] animate-spin">refresh</span>
+                           Saving draft...
+                         </>
+                       ) : (
+                         <>
+                           <span className="relative flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-40"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                           </span>
+                           Auto-saved {lastSavedStoryTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                         </>
+                       )}
+                     </div>
+                   )}
                    <button 
                      disabled={isSavingStory || !storyTitle || !storyContent}
                      onClick={handleSaveStory}
@@ -614,28 +684,28 @@ export default function AdminDashboard() {
                <div className="bg-moss-muted/10 border border-moss-border rounded-xl overflow-hidden flex flex-col">
                  <input 
                    value={storyTitle}
-                   onChange={(e) => setStoryTitle(e.target.value)}
-                   className="w-full bg-transparent border-b border-moss-border text-slate-100 text-2xl font-black px-8 py-6 outline-none placeholder:text-slate-600" 
+                   onChange={(e) => {
+                     setStoryTitle(e.target.value);
+                     setIsAutoSavingStory(true);
+                     setTimeout(() => { setIsAutoSavingStory(false); setLastSavedStoryTime(new Date()); }, 1000);
+                   }}
+                   className="w-full bg-transparent border-b border-primary/20 text-slate-100 text-2xl font-black px-8 py-6 outline-none placeholder:text-slate-600 focus:bg-primary/5 transition-colors" 
                    placeholder="Story Headline (e.g., The Grain of the Walnut)..." 
                  />
                  
-                 {/* Fake Rich Text Toolbar */}
-                 <div className="bg-moss-muted/30 border-b border-moss-border px-6 py-3 flex items-center gap-2">
-                   <button className="w-8 h-8 rounded hover:bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"><span className="material-symbols-outlined text-[18px]">format_bold</span></button>
-                   <button className="w-8 h-8 rounded hover:bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"><span className="material-symbols-outlined text-[18px]">format_italic</span></button>
-                   <button className="w-8 h-8 rounded hover:bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"><span className="material-symbols-outlined text-[18px]">format_underlined</span></button>
-                   <div className="w-px h-4 bg-moss-border mx-2"></div>
-                   <button className="w-8 h-8 rounded hover:bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"><span className="material-symbols-outlined text-[18px]">format_list_bulleted</span></button>
-                   <button className="w-8 h-8 rounded hover:bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"><span className="material-symbols-outlined text-[18px]">link</span></button>
-                   <button className="w-8 h-8 rounded hover:bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"><span className="material-symbols-outlined text-[18px]">image</span></button>
-                 </div>
-
-                 <textarea 
-                   value={storyContent}
-                   onChange={(e) => setStoryContent(e.target.value)}
-                   className="w-full bg-transparent text-slate-300 px-8 py-6 outline-none min-h-[400px] leading-relaxed resize-none placeholder:text-slate-600 custom-scrollbar" 
+                 <RichTextEditor 
+                   content={storyContent}
+                   onChange={(newContent) => {
+                     setStoryContent(newContent);
+                     setIsAutoSavingStory(true);
+                     // Simulate debounce network auto-save UI reaction
+                     setTimeout(() => {
+                       setIsAutoSavingStory(false);
+                       setLastSavedStoryTime(new Date());
+                     }, 1500);
+                   }}
                    placeholder="Begin weaving the tale here. What inspired this piece? What happened in the woods?"
-                 ></textarea>
+                 />
                </div>
                
                {/* List of Published Stories */}
@@ -764,27 +834,33 @@ export default function AdminDashboard() {
               </div>
 
               {/* Upload Form */}
-              <div className="bg-moss-muted/20 border border-moss-border rounded-xl p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="bg-[#1a211a]/60 backdrop-blur-xl border border-primary/10 rounded-xl p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
                 <div className="space-y-4">
                   <h4 className="font-semibold text-primary">Track Information</h4>
                   <div className="space-y-2">
                     <label className="text-xs font-medium text-slate-300">Track Title</label>
-                    <input value={trackTitle} onChange={e => setTrackTitle(e.target.value)} className="w-full bg-moss-muted border border-moss-border rounded-lg px-3 py-2 outline-none" placeholder="e.g. Dawn Chorus" />
+                    <input value={trackTitle} onChange={e => setTrackTitle(e.target.value)} className="w-full bg-black/20 border border-primary/20 rounded-lg px-3 py-2 outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all text-slate-100" placeholder="e.g. Dawn Chorus" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-xs font-medium text-slate-300">Wood Type</label>
-                      <input value={trackWood} onChange={e => setTrackWood(e.target.value)} className="w-full bg-moss-muted border border-moss-border rounded-lg px-3 py-2 outline-none" placeholder="Cherry Wood" />
+                      <input value={trackWood} onChange={e => setTrackWood(e.target.value)} className="w-full bg-black/20 border border-primary/20 rounded-lg px-3 py-2 outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all text-slate-100" placeholder="Cherry Wood" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-medium text-slate-300">Tuning Key</label>
-                      <input value={trackTuning} onChange={e => setTrackTuning(e.target.value)} className="w-full bg-moss-muted border border-moss-border rounded-lg px-3 py-2 outline-none" placeholder="432Hz (G4)" />
+                      <input value={trackTuning} onChange={e => setTrackTuning(e.target.value)} className="w-full bg-black/20 border border-primary/20 rounded-lg px-3 py-2 outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all text-slate-100" placeholder="432Hz (G4)" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-xs font-medium text-slate-300">Duration (MM:SS)</label>
-                      <input value={trackDuration} onChange={e => setTrackDuration(e.target.value)} className="w-full bg-moss-muted border border-moss-border rounded-lg px-3 py-2 outline-none" placeholder="03:45" />
+                      <label className="text-xs font-medium text-slate-300">Duration (Exact Seconds)</label>
+                      <input 
+                        type="number"
+                        value={trackDuration} 
+                        onChange={e => setTrackDuration(Number(e.target.value) || "")} 
+                        className="w-full bg-black/20 border border-primary/20 rounded-lg px-3 py-2 outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all text-slate-100" 
+                        placeholder="225" 
+                      />
                     </div>
                     <div className="flex items-center gap-2 pt-8">
                       <input type="checkbox" id="feature" checked={isTrackFeatured} onChange={e => setIsTrackFeatured(e.target.checked)} className="cursor-pointer" />
@@ -797,12 +873,30 @@ export default function AdminDashboard() {
                   <h4 className="font-semibold text-primary">Media Assets</h4>
                   <div className="space-y-2">
                     <label className="text-xs font-medium text-slate-300">Cover Art Image (Required)</label>
-                    <input type="file" accept="image/*" onChange={e => setLibraryCoverArt(e.target.files?.[0] || null)} className="w-full bg-moss-muted/30 border border-dashed border-moss-border text-slate-400 p-3 rounded-lg cursor-pointer text-sm" />
+                    <input type="file" accept="image/*" onChange={e => setLibraryCoverArt(e.target.files?.[0] || null)} className="w-full bg-black/30 border border-dashed border-primary/30 hover:border-primary/60 text-slate-400 p-3 rounded-lg cursor-pointer text-sm transition-colors" />
                     {libraryCoverArt && <p className="text-xs text-primary font-bold">Queued: {libraryCoverArt.name}</p>}
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-medium text-slate-300">Audio File (Required WAV/MP3)</label>
-                    <input type="file" accept="audio/*" onChange={e => setLibraryAudioFile(e.target.files?.[0] || null)} className="w-full bg-moss-muted/30 border border-dashed border-moss-border text-slate-400 p-3 rounded-lg cursor-pointer text-sm" />
+                    <input 
+                      type="file" 
+                      accept="audio/*" 
+                      onChange={e => {
+                        const file = e.target.files?.[0] || null;
+                        setLibraryAudioFile(file);
+                        
+                        // Auto-extract exact track duration in seconds
+                        if (file) {
+                          const temporaryAudio = new Audio();
+                          temporaryAudio.src = URL.createObjectURL(file);
+                          temporaryAudio.onloadedmetadata = () => {
+                            setTrackDuration(Math.floor(temporaryAudio.duration));
+                            URL.revokeObjectURL(temporaryAudio.src);
+                          };
+                        }
+                      }} 
+                      className="w-full bg-black/30 border border-dashed border-primary/30 hover:border-primary/60 text-slate-400 p-3 rounded-lg cursor-pointer text-sm transition-colors" 
+                    />
                     {libraryAudioFile && <p className="text-xs text-primary font-bold">Queued: {libraryAudioFile.name}</p>}
                   </div>
                   <button onClick={handleSaveTrack} disabled={isSavingTrack} className="w-full mt-4 bg-primary text-background-dark font-black rounded-lg py-3 hover:opacity-90 transition-opacity">
@@ -817,14 +911,14 @@ export default function AdminDashboard() {
                   <span className="material-symbols-outlined text-primary">format_list_bulleted</span>
                   Public Library
                 </h4>
-                <div className="overflow-hidden border border-moss-border rounded-xl">
+                <div className="overflow-hidden border border-primary/10 rounded-xl bg-[#1a211a]/40 backdrop-blur-md">
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-moss-muted text-slate-400 font-medium border-b border-moss-border">
+                    <thead className="bg-[#121a12]/80 text-primary/80 font-medium border-b border-primary/10">
                       <tr>
-                        <th className="px-6 py-3 w-12"></th>
-                        <th className="px-6 py-3">Track Details</th>
-                        <th className="px-6 py-3">Duration</th>
-                        <th className="px-6 py-3 text-right">Actions</th>
+                        <th className="px-6 py-4 w-12"></th>
+                        <th className="px-6 py-4 uppercase tracking-widest text-[10px]">Track Details</th>
+                        <th className="px-6 py-4 uppercase tracking-widest text-[10px]">Duration</th>
+                        <th className="px-6 py-4 uppercase tracking-widest text-[10px] text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-moss-border">

@@ -31,12 +31,13 @@ export function GlobalAudioPlayer() {
       {isVisible && isDocked && (
         <motion.div
           key="docked-player"
+          layout="position"
           initial={{ y: "100%" }}
           animate={{ y: 0 }}
           exit={{ y: "100%" }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className={`fixed bottom-0 left-0 w-full z-[100] glass-panel border-t p-4 flex items-center justify-between gap-4 transition-all duration-500
-            ${isPlaying ? 'border-primary/40 drop-shadow-[0_-5px_25px_rgba(238,173,43,0.15)]' : 'border-white/10 opacity-95'}
+          className={`fixed bottom-0 left-0 w-full z-[100] glass-panel border-t p-4 flex items-center justify-between gap-4 transition-colors duration-500
+            ${isPlaying ? 'border-primary/40 shadow-[0_-10px_30px_rgba(238,173,43,0.1)]' : 'border-white/10 opacity-95'}
           `}
         >
           {isPlaying && <div className="absolute inset-0 amber-glow-radial opacity-30 mix-blend-screen pointer-events-none"></div>}
@@ -50,6 +51,21 @@ export function GlobalAudioPlayer() {
               >
                 <span className="material-symbols-outlined fill-1" style={{ fontSize: '24px' }}>{isPlaying ? 'pause' : 'play_arrow'}</span>
               </button>
+              
+              {/* Expansive Track Info with Layout transition */}
+              <AnimatePresence>
+                {isPlaying && currentTrack?.coverArt && (
+                  <motion.img 
+                    initial={{ opacity: 0, width: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, width: 48, scale: 1 }}
+                    exit={{ opacity: 0, width: 0, scale: 0.8 }}
+                    layout
+                    src={currentTrack.coverArt} 
+                    alt="Cover Art" 
+                    className="h-12 w-12 rounded object-cover border border-white/10 hidden sm:block shadow-lg"
+                  />
+                )}
+              </AnimatePresence>
               <div className="hidden sm:block min-w-32 max-w-48">
                 <p className={`text-sm font-bold leading-none mb-1 truncate transition-colors ${isPlaying ? 'text-primary' : 'text-slate-100'}`}>
                   {currentTrack?.title || "Track"}
