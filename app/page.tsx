@@ -6,13 +6,37 @@ import Image from "next/image";
 import { useUI } from "./contexts/UIContext";
 import { useAudio } from "./contexts/AudioContext";
 import { motion } from "framer-motion";
+import { supabase } from "../lib/supabase";
 
 export default function LandingPage() {
-  const { openPreviewModal } = useUI();
+  const { openPreviewModal, openAboutModal } = useUI();
   const { isPlaying, togglePlay, progress, duration, formatTime } = useAudio();
   const [timeLeft, setTimeLeft] = useState({ days: "02", hours: "14", minutes: "56" });
+  const [events, setEvents] = useState<any[]>([]);
+  
+  // Dynamic Content State
+  const [heroSubtitle, setHeroSubtitle] = useState("Breathing life into wood, weaving sound into soul.\n1-of-1 handcrafted flutes and their exclusive sonic echoes.");
+  const [aboutText, setAboutText] = useState("Every iMagiMason piece begins in the silence of the high desert. Mason selects fallen cedar and obsidian, listening to the natural grain before the first cut is even made.\n\nEach flute is a singular existence—a 1-of-1 sculptural instrument tuned to a unique frequency. Once carved, Mason composes a dedicated atmospheric track that can only be unlocked by the owner of that specific flute.\n\nThis isn't just an auction; it's a transfer of a soul-bound artifact. From raw earth to digital resonance, the journey is complete only when the first breath passes through the wood.");
 
   useEffect(() => {
+    // Fetch dynamic content
+    const fetchContent = async () => {
+      const { data } = await supabase.from('site_content').select('*');
+      if (data) {
+        data.forEach((item: any) => {
+          if (item.id === 'hero_subtitle') setHeroSubtitle(item.content);
+          if (item.id === 'about_text') setAboutText(item.content);
+        });
+      }
+
+      const { data: eventsData } = await supabase.from('calendar_events')
+        .select('*')
+        .order('event_date', { ascending: true })
+        .limit(3);
+      if (eventsData) setEvents(eventsData);
+    };
+    fetchContent();
+
     // Handle the live ticking countdown for the featured drop
     const endTime = new Date();
     endTime.setDate(endTime.getDate() + 2);
@@ -53,14 +77,14 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-12">
             <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#story">Story</Link>
             <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#drops">Drops</Link>
-            <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#listen">Listen</Link>
+            <Link className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="/listen">Listen</Link>
           </div>
           <div className="flex items-center gap-6">
             <Link href="/admin" className="hidden lg:flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary px-5 py-2 rounded-lg border border-primary/20 transition-all text-sm font-bold uppercase tracking-wider">
               <span className="material-symbols-outlined text-sm">account_balance_wallet</span>
               Admin
             </Link>
-            <Link href="#drops" className="bg-primary text-background-dark px-6 py-2 rounded-lg font-bold text-sm uppercase tracking-wider hover:brightness-110 transition-all">
+            <Link href="/drop" className="bg-primary text-background-dark px-6 py-2 rounded-lg font-bold text-sm uppercase tracking-wider hover:brightness-110 transition-all">
               Next Drop
             </Link>
           </div>
@@ -78,13 +102,12 @@ export default function LandingPage() {
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px]"></div>
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-terracotta/20 rounded-full blur-[120px]"></div>
         </div>
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto flex flex-col items-center">
           <h1 className="text-7xl md:text-9xl font-black tracking-tighter mb-6 uppercase text-gradient">
             iMagiMason
           </h1>
-          <p className="text-xl md:text-2xl font-light text-slate-400 mb-10 tracking-wide leading-relaxed">
-            Breathing life into wood, <span className="text-slate-200">weaving sound into soul.</span><br />
-            1-of-1 handcrafted flutes and their exclusive sonic echoes.
+          <p className="text-xl md:text-2xl font-light text-slate-400 mb-10 tracking-wide leading-relaxed whitespace-pre-line text-balance">
+            {heroSubtitle}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <motion.div className="w-full sm:w-auto" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -119,16 +142,8 @@ export default function LandingPage() {
           </div>
           <div className="space-y-8">
             <h2 className="text-5xl font-black uppercase tracking-tight">The Craft &amp; <br /><span className="text-primary">The Chord</span></h2>
-            <div className="space-y-6 text-lg text-slate-400 font-light leading-relaxed">
-              <p>
-                Every iMagiMason piece begins in the silence of the high desert. Mason selects fallen cedar and obsidian, listening to the natural grain before the first cut is even made.
-              </p>
-              <p>
-                Each flute is a singular existence—a 1-of-1 sculptural instrument tuned to a unique frequency. Once carved, Mason composes a dedicated atmospheric track that can only be unlocked by the owner of that specific flute.
-              </p>
-              <p>
-                This isn't just an auction; it's a transfer of a soul-bound artifact. From raw earth to digital resonance, the journey is complete only when the first breath passes through the wood.
-              </p>
+            <div className="space-y-6 text-lg text-slate-400 font-light leading-relaxed whitespace-pre-line">
+              {aboutText}
             </div>
             <div className="flex gap-12 pt-6">
               <div>
@@ -260,6 +275,39 @@ export default function LandingPage() {
               </button>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Upcoming Events */}
+      <section className="py-24 px-6 border-t border-white/5 bg-background-dark relative">
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto relative z-10">
+           <h2 className="text-3xl font-black uppercase mb-12 flex items-center gap-4">
+             <span className="material-symbols-outlined text-primary">event</span>
+             Upcoming Events
+           </h2>
+           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+             {events.map((evt) => (
+                <div key={evt.id} className="bg-charcoal/40 border border-white/5 p-8 rounded-2xl hover:border-primary/30 hover:bg-charcoal/80 transition-all group shadow-xl">
+                  <div className="flex justify-between items-start mb-6">
+                    <span className="material-symbols-outlined text-4xl text-slate-500 group-hover:text-primary transition-colors">calendar_today</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20">
+                      {new Date(evt.event_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  </div>
+                  <h4 className="text-xl font-bold uppercase mb-2 text-white group-hover:text-primary transition-colors">{evt.title}</h4>
+                  <p className="text-slate-400 text-sm font-light flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[16px]">location_on</span>
+                    {evt.location}
+                  </p>
+                </div>
+             ))}
+             {events.length === 0 && (
+                <div className="col-span-3 text-center py-12 bg-charcoal/20 rounded-2xl border border-white/5">
+                  <p className="text-slate-500 italic">Curating future acoustic experiences. Check back soon for new events.</p>
+                </div>
+             )}
+           </div>
         </div>
       </section>
 

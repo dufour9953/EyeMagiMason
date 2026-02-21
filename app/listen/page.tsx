@@ -2,56 +2,36 @@
 
 import { useUI } from "../contexts/UIContext";
 import { useAudio } from "../contexts/AudioContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-// Removing Header & Footer and GlobalAudioPlayer since they are either handled globally or inline
-
-// Mock data for the audio library until Supabase is fully wired
-const libraryTracks = [
-  {
-    id: "1",
-    title: "The Cedar Solace",
-    duration: "15:00",
-    plays: "1.2k",
-    woodType: "Western Red Cedar",
-    tuning: "432Hz (A4)",
-    coverArt: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2000&auto=format&fit=crop",
-    audioSrc: "https://cdn.pixabay.com/download/audio/2022/11/22/audio_732d84db8e.mp3?filename=flute-ambient-126274.mp3"
-  },
-  {
-    id: "2",
-    title: "Midnight Embers",
-    duration: "12:30",
-    plays: "842",
-    woodType: "Walnut Burl",
-    tuning: "440Hz (E4)",
-    coverArt: "https://images.unsplash.com/photo-1517769534661-f3b76251c6cc?q=80&w=2000&auto=format&fit=crop",
-    audioSrc: "https://cdn.pixabay.com/download/audio/2022/02/10/audio_fc862f9ff4.mp3?filename=native-american-flute-11440.mp3"
-  },
-  {
-    id: "3",
-    title: "Dawn Chorus",
-    duration: "08:45",
-    plays: "2.1k",
-    woodType: "Cherry Wood",
-    tuning: "432Hz (G4)",
-    coverArt: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=2000&auto=format&fit=crop",
-    audioSrc: "https://cdn.pixabay.com/download/audio/2022/11/22/audio_732d84db8e.mp3?filename=flute-ambient-126274.mp3" // Reusing for mock
-  }
-];
+import { supabase } from "../../lib/supabase";
 
 export default function ListenPage() {
-  const { openPreviewModal } = useUI();
+  const { openPreviewModal, openArchiveModal, openAboutModal } = useUI();
   const { togglePlay, isPlaying, setAudioSource, currentTrack } = useAudio();
   const [hoveredTrack, setHoveredTrack] = useState<string | null>(null);
+  const [libraryTracks, setLibraryTracks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handlePlayClick = (track: any) => {
-    // If it's the currently playing track, just toggle pause/play
+  useEffect(() => {
+    const fetchTracks = async () => {
+      const { data } = await supabase.from('audio_tracks').select('*').order('created_at', { ascending: false });
+      if (data) setLibraryTracks(data);
+      setLoading(false);
+    };
+    fetchTracks();
+  }, []);
+
+  const handlePlayClick = async (track: any) => {
     if (currentTrack && currentTrack.title === track.title) {
       togglePlay();
     } else {
-      // Switch the whole global context to this track and ensure playing state
-      setAudioSource(track.audioSrc, track.title, `${track.woodType} • ${track.tuning}`);
+      setAudioSource(track.audio_url, track.title, `${track.wood_type} • ${track.tuning}`);
+      
+      const newPlays = (track.plays || 0) + 1;
+      await supabase.from('audio_tracks').update({ plays: newPlays }).eq('id', track.id);
+      
+      setLibraryTracks(current => current.map(t => t.id === track.id ? { ...t, plays: newPlays } : t));
     }
   };
 
@@ -71,6 +51,8 @@ export default function ListenPage() {
             <Link className="text-sm font-medium hover:text-primary transition-colors" href="/">Home</Link>
             <Link className="text-sm font-medium hover:text-primary transition-colors" href="/drop">Live Auction</Link>
             <Link className="text-sm font-medium text-primary border-b-2 border-primary pb-1 transition-colors" href="/listen">Listen</Link>
+            <button onClick={openArchiveModal} className="text-sm font-medium hover:text-primary transition-colors">Archive</button>
+            <button onClick={openAboutModal} className="text-sm font-medium hover:text-primary transition-colors">About</button>
           </nav>
           <div className="flex items-center gap-4">
             <button onClick={() => openPreviewModal("Wallet Connection")} className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-primary text-background-dark font-bold text-sm rounded-lg hover:brightness-110 transition-all">
@@ -96,49 +78,44 @@ export default function ListenPage() {
               Explore the sonic landscape of iMagiMason. Each piece is an original composition recorded directly from the flutes crafted in the workshop.
             </p>
           </div>
-          
-          <div className="flex gap-4 shrink-0">
-            <Link href="/" className="px-6 py-3 border border-moss-border text-slate-300 font-bold rounded-lg hover:bg-white/5 transition-colors uppercase tracking-wider text-sm flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">home</span>
-              Home
-            </Link>
-          </div>
         </section>
 
         {/* Featured Track / Hero */}
-        <section className="relative overflow-hidden rounded-3xl border border-moss-border bg-moss-muted/20 group">
-          <div className="absolute inset-0">
-             <img 
-               src={libraryTracks[0].coverArt} 
-               alt="Featured Track"
-               className="w-full h-full object-cover opacity-30 transform group-hover:scale-105 transition-transform duration-700 ease-out"
-             />
-             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f0a] via-[#0a0f0a]/80 to-transparent" />
-          </div>
-          
-          <div className="relative p-8 md:p-16 flex flex-col md:flex-row gap-8 items-end justify-between h-full min-h-[400px]">
-             <div className="space-y-4">
-               <span className="px-3 py-1 bg-primary/20 text-primary border border-primary/30 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-md">
-                 Featured Composition
-               </span>
-               <h2 className="text-3xl md:text-5xl font-black">{libraryTracks[0].title}</h2>
-               <div className="flex items-center gap-4 text-sm text-slate-300">
-                 <span className="flex items-center gap-1.5"><span className="material-symbols-outlined text-[16px]">graphic_eq</span>{libraryTracks[0].tuning}</span>
-                 <span className="w-1.5 h-1.5 rounded-full bg-slate-600" />
-                 <span>{libraryTracks[0].woodType}</span>
+        {!loading && libraryTracks.length > 0 && (
+          <section className="relative overflow-hidden rounded-3xl border border-moss-border bg-moss-muted/20 group">
+            <div className="absolute inset-0">
+               <img 
+                 src={libraryTracks[0].cover_art_url} 
+                 alt="Featured Track"
+                 className="w-full h-full object-cover opacity-30 transform group-hover:scale-105 transition-transform duration-700 ease-out"
+               />
+               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f0a] via-[#0a0f0a]/80 to-transparent" />
+            </div>
+            
+            <div className="relative p-8 md:p-16 flex flex-col md:flex-row gap-8 items-end justify-between h-full min-h-[400px]">
+               <div className="space-y-4">
+                 <span className="px-3 py-1 bg-primary/20 text-primary border border-primary/30 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-md">
+                   Featured Composition
+                 </span>
+                 <h2 className="text-3xl md:text-5xl font-black">{libraryTracks[0].title}</h2>
+                 <div className="flex items-center gap-4 text-sm text-slate-300">
+                   <span className="flex items-center gap-1.5"><span className="material-symbols-outlined text-[16px]">graphic_eq</span>{libraryTracks[0].tuning}</span>
+                   <span className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                   <span>{libraryTracks[0].wood_type}</span>
+                 </div>
                </div>
-             </div>
-             
-             <button 
-               onClick={() => handlePlayClick(libraryTracks[0])}
-               className="w-16 h-16 md:w-20 md:h-20 shrink-0 bg-primary text-background-dark rounded-full flex items-center justify-center hover:scale-105 transition-transform drop-shadow-[0_0_20px_rgba(238,173,43,0.3)] group-hover:drop-shadow-[0_0_30px_rgba(238,173,43,0.5)]"
-             >
-               <span className="material-symbols-outlined text-4xl ml-1">
-                 {isPlaying && currentTrack?.title === libraryTracks[0].title ? 'pause' : 'play_arrow'}
-               </span>
-             </button>
-          </div>
-        </section>
+               
+               <button 
+                 onClick={() => handlePlayClick(libraryTracks[0])}
+                 className="w-16 h-16 md:w-20 md:h-20 shrink-0 bg-primary text-background-dark rounded-full flex items-center justify-center hover:scale-105 transition-transform drop-shadow-[0_0_20px_rgba(238,173,43,0.3)] group-hover:drop-shadow-[0_0_30px_rgba(238,173,43,0.5)]"
+               >
+                 <span className="material-symbols-outlined text-4xl ml-1">
+                   {isPlaying && currentTrack?.title === libraryTracks[0].title ? 'pause' : 'play_arrow'}
+                 </span>
+               </button>
+            </div>
+          </section>
+        )}
 
         {/* Tracklist Table */}
         <section className="space-y-6">
@@ -187,7 +164,7 @@ export default function ListenPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
                           <img 
-                            src={track.coverArt} 
+                            src={track.cover_art_url} 
                             alt={track.title}
                             className="w-12 h-12 rounded opacity-80 group-hover:opacity-100 transition-opacity object-cover"
                           />
@@ -197,11 +174,11 @@ export default function ListenPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 hidden md:table-cell text-slate-400">
-                        <span className="truncate block max-w-[200px] text-sm">{track.woodType}</span>
+                        <span className="truncate block max-w-[200px] text-sm">{track.wood_type}</span>
                         <span className="text-xs text-slate-500 mt-0.5 block">{track.tuning}</span>
                       </td>
                       <td className="px-6 py-4 hidden sm:table-cell text-slate-400 font-mono text-sm text-right">
-                        {track.plays}
+                        {track.plays || 0}
                       </td>
                       <td className="px-6 py-4 text-slate-400 font-mono text-sm text-right">
                         {track.duration}
@@ -209,6 +186,13 @@ export default function ListenPage() {
                     </tr>
                   );
                 })}
+                {libraryTracks.length === 0 && !loading && (
+                   <tr>
+                     <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
+                       No tracks in library.
+                     </td>
+                   </tr>
+                )}
               </tbody>
             </table>
           </div>

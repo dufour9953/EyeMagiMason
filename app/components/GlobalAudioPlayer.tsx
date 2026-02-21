@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 
 export function GlobalAudioPlayer() {
-  const { isPlaying, progress, duration, togglePlay, formatTime, currentTrack } = useAudio();
+  const { isPlaying, progress, duration, togglePlay, formatTime, currentTrack, stop } = useAudio();
   const [isVisible, setIsVisible] = useState(true);
   const [isDocked, setIsDocked] = useState(true); // Default to docked to bottom of screen
   const [isClient, setIsClient] = useState(false);
@@ -82,7 +82,10 @@ export function GlobalAudioPlayer() {
                 <span className="material-symbols-outlined">pip</span>
               </button>
               <button 
-                onClick={() => setIsVisible(false)}
+                onClick={() => {
+                  stop();
+                  setIsVisible(false);
+                }}
                 className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500/10 rounded-full transition-colors"
               >
                 <span className="material-symbols-outlined">close</span>
@@ -144,7 +147,10 @@ export function GlobalAudioPlayer() {
                 <span className="material-symbols-outlined text-[16px]">dock_to_bottom</span>
               </button>
               <button 
-                onClick={() => setIsVisible(false)}
+                onClick={() => {
+                  stop();
+                  setIsVisible(false);
+                }}
                 onPointerDown={(e) => e.stopPropagation()}
                 title="Close Player"
                 className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500/20 transition-colors cursor-pointer"
