@@ -4,6 +4,8 @@ import "./globals.css";
 import { UIProvider } from "./contexts/UIContext";
 import { AudioProvider } from "./contexts/AudioContext";
 import { PreviewModal } from "./components/PreviewModal";
+import { ArchiveModal } from "./components/ArchiveModal";
+import { AboutModal } from "./components/AboutModal";
 import { GlobalAudioPlayer } from "./components/GlobalAudioPlayer";
 
 const inter = Inter({
@@ -33,6 +35,8 @@ export default function RootLayout({
           <AudioProvider>
             {children}
             <PreviewModal />
+            <ArchiveModal />
+            <AboutModal />
             <GlobalAudioPlayer />
           </AudioProvider>
         </UIProvider>

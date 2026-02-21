@@ -14,39 +14,66 @@ export default function DropPage() {
   const [loading, setLoading] = useState(true);
   const [bidInput, setBidInput] = useState("");
   const [pulseCSS, setPulseCSS] = useState(false);
-  const [timeLeft, setTimeLeft] = useState({ hours: "02", minutes: "45", seconds: "12" });
+  const [timeLeft, setTimeLeft] = useState({ hours: "00", minutes: "00", seconds: "00" });
+  const [timerLabel, setTimerLabel] = useState("Loading...");
   
-  const { openPreviewModal } = useUI();
+  const { openPreviewModal, openArchiveModal, openAboutModal } = useUI();
   const { isPlaying } = useAudio();
 
   useEffect(() => {
-    // Handle the live ticking countdown
-    const endTime = new Date();
-    endTime.setHours(endTime.getHours() + 2);
-    endTime.setMinutes(endTime.getMinutes() + 45);
-    endTime.setSeconds(endTime.getSeconds() + 12);
-
-    const timer = setInterval(() => {
-      const now = new Date();
-      const diff = endTime.getTime() - now.getTime();
+    if (!drop) return;
+    
+    const calculateTime = () => {
+      const now = new Date().getTime();
+      const startTime = drop.start_time ? new Date(drop.start_time).getTime() : 0;
+      const endTime = drop.end_time ? new Date(drop.end_time).getTime() : 0;
       
-      if (diff <= 0) {
-        clearInterval(timer);
-        setTimeLeft({ hours: "00", minutes: "00", seconds: "00" });
+      let targetTime = 0;
+      if (startTime > now) {
+        targetTime = startTime;
+        setTimerLabel("Auction Starts In");
+      } else if (endTime > now) {
+        targetTime = endTime;
+        setTimerLabel("Auction Ends In");
+      } else if (endTime > 0 && endTime <= now) {
+        targetTime = 0;
+        setTimerLabel("Auction Concluded");
       } else {
-        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const m = Math.floor((diff / 1000 / 60) % 60);
-        const s = Math.floor((diff / 1000) % 60);
-        setTimeLeft({
-          hours: h.toString().padStart(2, '0'),
-          minutes: m.toString().padStart(2, '0'),
-          seconds: s.toString().padStart(2, '0')
-        });
+        setTimerLabel("Auction is Live");
+        return null;
       }
-    }, 1000);
+      return targetTime;
+    };
+
+    let timer: NodeJS.Timeout;
+    let target = calculateTime();
+    
+    if (target) {
+      timer = setInterval(() => {
+        const now = new Date().getTime();
+        const diff = target! - now;
+        
+        if (diff <= 0) {
+          clearInterval(timer);
+          setTimeLeft({ hours: "00", minutes: "00", seconds: "00" });
+          target = calculateTime();
+        } else {
+          const h = Math.floor(diff / (1000 * 60 * 60));
+          const m = Math.floor((diff / 1000 / 60) % 60);
+          const s = Math.floor((diff / 1000) % 60);
+          setTimeLeft({
+            hours: h.toString().padStart(2, '0'),
+            minutes: m.toString().padStart(2, '0'),
+            seconds: s.toString().padStart(2, '0')
+          });
+        }
+      }, 1000);
+    } else {
+      setTimeLeft({ hours: "00", minutes: "00", seconds: "00" });
+    }
 
     return () => clearInterval(timer);
-  }, []);
+  }, [drop]);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -127,8 +154,8 @@ export default function DropPage() {
           <nav className="hidden md:flex items-center gap-10">
             <Link className="text-sm font-medium hover:text-primary transition-colors" href="/">Home</Link>
             <Link className="text-sm font-medium hover:text-primary transition-colors text-primary border-b-2 border-primary pb-1" href="/drop">Live Auction</Link>
-            <button onClick={() => openPreviewModal("Archive Library")} className="text-sm font-medium hover:text-primary transition-colors">Archive</button>
-            <button onClick={() => openPreviewModal("About Section")} className="text-sm font-medium hover:text-primary transition-colors">About</button>
+            <button onClick={openArchiveModal} className="text-sm font-medium hover:text-primary transition-colors">Archive</button>
+            <button onClick={openAboutModal} className="text-sm font-medium hover:text-primary transition-colors">About</button>
           </nav>
           <div className="flex items-center gap-4">
             <button onClick={() => openPreviewModal("Wallet Connection")} className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-primary text-background-dark font-bold text-sm rounded-lg hover:brightness-110 transition-all">
@@ -202,7 +229,7 @@ export default function DropPage() {
         <div className="lg:col-span-5 flex flex-col gap-6">
           <div className="glass-panel p-8 rounded-xl border border-white/10 shadow-xl lg:sticky lg:top-28">
             <div className="mb-8">
-              <p className="text-xs uppercase tracking-widest text-slate-400 mb-4 font-bold">Auction Ends In</p>
+              <p className="text-xs uppercase tracking-widest text-slate-400 mb-4 font-bold">{timerLabel}</p>
               <div className="flex gap-4">
                 <div className="flex-1 bg-white/5 rounded-lg p-4 text-center border border-white/5">
                   <p className="text-3xl font-black text-slate-100">{timeLeft.hours}</p>

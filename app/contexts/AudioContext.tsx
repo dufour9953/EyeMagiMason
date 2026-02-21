@@ -9,6 +9,7 @@ interface AudioContextType {
   togglePlay: () => void;
   formatTime: (time: number) => string;
   setAudioSource: (src: string, title: string, subtitle: string) => void;
+  stop: () => void;
   currentTrack: { title: string; subtitle: string } | null;
 }
 
@@ -63,6 +64,19 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const stop = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      setProgress(0);
+      try {
+        audioRef.current.currentTime = 0;
+      } catch (e) {
+        console.error("Failed to reset time", e);
+      }
+    }
+  };
+
   const setAudioSource = (src: string, title: string, subtitle: string) => {
     if (audioRef.current) {
       const wasPlaying = isPlaying;
@@ -82,7 +96,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AudioContext.Provider value={{ isPlaying, progress, duration, togglePlay, formatTime, setAudioSource, currentTrack }}>
+    <AudioContext.Provider value={{ isPlaying, progress, duration, togglePlay, formatTime, setAudioSource, stop, currentTrack }}>
       {children}
     </AudioContext.Provider>
   );
