@@ -152,7 +152,7 @@ export default function AdminDashboard() {
       }]);
       
       if (error) throw error;
-      triggerToast("Story Published! It is now visible on the Homepage & Journal.");
+      triggerToast("Story Published! It is now visible on the Homepage & Echoes.");
       setStoryTitle("");
       setStoryContent("");
       setLastSavedStoryTime(null);

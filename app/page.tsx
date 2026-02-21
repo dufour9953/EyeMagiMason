@@ -39,8 +39,10 @@ export default function LandingPage() {
 
       const { data: storiesData } = await supabase.from('stories')
         .select('*')
+        .eq('status', 'PUBLISHED')
         .order('created_at', { ascending: false })
         .limit(2);
+      
       if (storiesData) setStories(storiesData);
     };
     fetchContent();
@@ -214,6 +216,59 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Featured Journal / Stories */}
+      {stories.length > 0 && (
+        <section className="py-32 px-6 relative bg-charcoal border-t border-white/5 overflow-hidden">
+          {/* Subtle Background Glow */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px]"></div>
+          </div>
+          
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="flex justify-between items-end mb-16">
+              <div>
+                <span className="text-primary font-bold uppercase tracking-[0.3em] text-xs">The Echoes</span>
+                <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tight mt-2 text-white">Latest <span className="text-primary font-light">Echoes</span></h2>
+              </div>
+              <Link href="/echoes" className="hidden sm:inline-flex px-8 py-3 border border-white/10 text-white font-bold rounded-xl uppercase tracking-widest text-xs hover:border-primary/50 hover:text-primary transition-all">
+                View Archive
+              </Link>
+            </div>
+            
+            <div className="grid lg:grid-cols-2 gap-8 md:gap-12">
+              {stories.map((story) => (
+                <Link key={story.id} href={`/echoes/${story.id || ''}`} className="group flex flex-col bg-background-dark/50 border border-white/5 rounded-3xl overflow-hidden hover:border-primary/30 transition-all duration-500 hover:shadow-[0_0_40px_rgba(238,173,43,0.1)]">
+                  <div className="p-8 md:p-12 flex flex-col flex-grow relative overflow-hidden">
+                    {/* Abstract Decorative Corner */}
+                    <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all duration-700"></div>
+                    
+                    <div className="flex items-center gap-4 mb-8">
+                      <span className="text-xs font-bold uppercase tracking-widest bg-white/5 text-slate-300 px-4 py-2 rounded-full border border-white/10 group-hover:border-primary/20 group-hover:text-primary transition-colors">
+                        {new Date(story.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                      </span>
+                    </div>
+                    <h3 className="text-3xl md:text-4xl font-black mb-6 leading-tight text-white group-hover:text-primary transition-colors duration-300">Echo: {story.title}</h3>
+                    
+                    {/* HTML content clamp */}
+                    <div className="text-slate-400 font-light text-lg leading-relaxed line-clamp-4 mb-12 flex-grow" dangerouslySetInnerHTML={{ __html: story.content }} />
+                    
+                    <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-6">
+                       <span className="text-primary text-sm font-bold uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all">
+                         Read Story <span className="material-symbols-outlined text-base">arrow_forward</span>
+                       </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            
+            <Link href="/echoes" className="mt-12 w-full text-center px-8 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-xl uppercase tracking-widest text-xs hover:bg-white/10 transition-all sm:hidden block">
+              View Entire Archive
+            </Link>
+          </div>
+        </section>
+      )}
+
       {/* Drop Timeline */}
       <section className="py-24 px-6 bg-background-dark/80">
         <div className="max-w-7xl mx-auto">
@@ -264,40 +319,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* Latest Stories */}
-      {stories.length > 0 && (
-        <section className="py-24 px-6 border-t border-white/5 bg-background-dark relative">
-          <div className="max-w-7xl mx-auto relative z-10">
-            <div className="flex justify-between items-end mb-12">
-              <h2 className="text-3xl font-black uppercase flex items-center gap-4">
-                <span className="material-symbols-outlined text-primary">auto_stories</span>
-                The Journal
-              </h2>
-              <Link href="/journal" className="text-primary text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:gap-4 transition-all group hidden sm:flex">
-                View All <span className="material-symbols-outlined text-sm">arrow_forward</span>
-              </Link>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              {stories.map((story) => (
-                <Link key={story.id} href="/journal" className="group block bg-charcoal/30 border border-white/5 rounded-2xl p-8 hover:border-primary/30 transition-all shadow-xl">
-                  <div className="flex justify-between items-start mb-6">
-                    <span className="text-[10px] font-bold uppercase tracking-widest bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20">
-                      {new Date(story.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </span>
-                  </div>
-                  <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors">{story.title}</h3>
-                  <div className="text-slate-400 font-light line-clamp-3" dangerouslySetInnerHTML={{ __html: story.content }} />
-                </Link>
-              ))}
-            </div>
-            <Link href="/journal" className="mt-8 text-primary text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:gap-4 transition-all group sm:hidden justify-center w-full">
-               View All <span className="material-symbols-outlined text-sm">arrow_forward</span>
-            </Link>
-          </div>
-        </section>
-      )}
 
       {/* Upcoming Events */}
       <section className="py-24 px-6 border-t border-white/5 bg-background-dark relative">

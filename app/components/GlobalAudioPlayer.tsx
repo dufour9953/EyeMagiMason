@@ -44,10 +44,10 @@ export function GlobalAudioPlayer() {
           
           <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-4 md:gap-8 relative z-10">
             {/* Left Controls */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               <button 
                 onClick={togglePlay}
-                className={`w-12 h-12 shrink-0 rounded-full flex items-center justify-center text-background-dark hover:scale-110 transition-all duration-300 ${isPlaying ? 'bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]' : 'bg-primary'}`}
+                className={`w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-full flex items-center justify-center text-background-dark hover:scale-110 transition-all duration-300 ${isPlaying ? 'bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]' : 'bg-primary'}`}
               >
                 <span className="material-symbols-outlined fill-1" style={{ fontSize: '24px' }}>{isPlaying ? 'pause' : 'play_arrow'}</span>
               </button>
@@ -57,20 +57,20 @@ export function GlobalAudioPlayer() {
                 {currentTrack?.coverArt && (
                   <motion.img 
                     initial={{ opacity: 0, width: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, width: 48, scale: 1 }}
+                    animate={{ opacity: 1, width: 40, scale: 1 }}
                     exit={{ opacity: 0, width: 0, scale: 0.8 }}
                     layout
                     src={currentTrack.coverArt} 
                     alt="Cover Art" 
-                    className="h-12 w-12 rounded object-cover border border-white/10 hidden sm:block shadow-lg"
+                    className="h-10 w-10 sm:h-12 sm:w-12 sm:min-w-12 rounded object-cover border border-white/10 shadow-lg shrink-0"
                   />
                 )}
               </AnimatePresence>
-              <div className="hidden sm:block min-w-32 max-w-48">
-                <p className={`text-sm font-bold leading-none mb-1 truncate transition-colors ${isPlaying ? 'text-primary' : 'text-slate-100'}`}>
+              <div className="min-w-24 max-w-32 sm:min-w-32 sm:max-w-48 overflow-hidden">
+                <p className={`text-xs sm:text-sm font-bold leading-none mb-1 truncate transition-colors ${isPlaying ? 'text-primary' : 'text-slate-100'}`}>
                   {currentTrack?.title || "Track"}
                 </p>
-                <p className="text-[10px] uppercase tracking-widest text-primary/80 truncate">
+                <p className="text-[9px] sm:text-[10px] uppercase tracking-widest text-primary/80 truncate">
                   {currentTrack?.subtitle || "Artist"}
                 </p>
               </div>

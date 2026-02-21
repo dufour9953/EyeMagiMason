@@ -25,6 +25,7 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
       }),
     ],
     content: content,
+    immediatelyRender: false,
     editorProps: {
       attributes: {
         class: 'prose prose-invert prose-p:text-slate-300 prose-headings:text-slate-100 prose-a:text-primary max-w-none min-h-[300px] w-full bg-moss-muted/30 border border-moss-border rounded-lg p-6 focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-100 transition-all shadow-inner',

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Journal | iMagiMason',
+  title: 'Echoes | iMagiMason',
   description: 'Chronicles, processes, and echoes from the high desert woodworking studio.',
 };
 
@@ -22,7 +22,7 @@ export default async function JournalPage() {
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-16">
           <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-4">
-            The <span className="text-gradient">Journal</span>
+            The <span className="text-gradient">Echoes</span>
           </h1>
           <p className="text-slate-400 text-lg max-w-2xl font-light">
             Chronicles from the high desert. Stories of cedar, obsidian, and sonic echoes hand-carved in solitude.
@@ -31,7 +31,7 @@ export default async function JournalPage() {
 
         {(!stories || stories.length === 0) ? (
           <div className="py-24 text-center border border-dashed border-moss-border rounded-2xl bg-moss-muted/10">
-            <p className="text-slate-500 font-medium">The journal is currently quiet. Check back soon for new stories.</p>
+            <p className="text-slate-500 font-medium">The echoes are currently quiet. Check back soon for new stories.</p>
           </div>
         ) : (
           <div className="space-y-16">
